@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - VISTA PREVIA (MODAL Y FILTROS)</title>
+    <title>Dashboard - VISTA PREVIA (GESTIÓN DE PEDIDOS)</title>
     
     <link rel="stylesheet" href="style.css"> 
 </head>
@@ -17,7 +17,17 @@
         </div>
         
         <div id="status-bar">
-            Estado: <span id="message">Vista previa de datos simulados (Modal activo)</span>
+            Estado: <span id="message">Vista previa de datos simulados (Gestión de Pedidos activa)</span>
+            
+            <div style="margin-top: 10px;">
+                <label for="logged-user-select" style="display: inline; font-weight: bold; color: #00fff2;">
+                    USUARIO REGISTRADO: 
+                </label>
+                <select id="logged-user-select" style="padding: 5px; background-color: #2c2c2c; color: #e0e0e0; border: 1px solid #c501e2; border-radius: 3px;">
+                    <option value="Usuario A">Usuario A (Gerente)</option>
+                    <option value="Usuario B">Usuario B (Asistente)</option>
+                </select>
+            </div>
         </div>
 
         <div class="card">
@@ -61,6 +71,18 @@
                 <button class="modal-close" onclick="closeModal()">×</button>
             </div>
             
+            <h3 style="color: #f39c12;">🎯 Gestión del Pedido</h3>
+            <p>
+                Asignado a: <strong id="detail-assigned-user" style="color: #00fff2;"></strong><br>
+                Última Acción: <strong id="detail-last-action-date"></strong>
+            </p>
+
+            <div id="action-buttons" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button id="assign-btn" class="action-btn assign-style" onclick="handleAssignClick()">Tomar Asignación</button>
+                <button id="complete-btn" class="action-btn complete-style" onclick="actualizarEstado(currentPedidoId, 'Completada')">Marcar como Completado</button>
+                <button id="cancel-btn" class="action-btn cancel-style" onclick="actualizarEstado(currentPedidoId, 'Cancelada')">Marcar como Cancelado</button>
+            </div>
+            
             <h3 style="color: #00fff2;">Información del Pedido</h3>
             <p>
                 Producto: <strong id="detail-product"></strong><br>
@@ -82,17 +104,22 @@
     </div>
 
     <script>
+        let currentPedidoId = null;
+        let loggedUser = "Usuario A"; // Inicialmente Usuario A
+
         // ----------------------------------------------------------------------
-        // 1. DATOS SIMULADOS (JSON)
+        // 1. DATOS SIMULADOS (JSON) - AHORA CON ASIGNACIÓN
         // ----------------------------------------------------------------------
 
-        const mockData = [
+        let mockData = [
             {
                 id: 105,
                 producto_nombre: "Oud Ispahan 100ml",
                 monto: 120.00,
                 estado: "Pendiente",
                 fecha_pedido: "2025-11-28T09:30:00Z",
+                asignado_a: "Usuario A", 
+                fecha_ultima_accion: "2025-11-28T09:30:00Z",
                 clientes: { nombre: "Andrea García", numero_whatsapp: "+5491155551234" },
                 logs: [{ es_entrada: true, contenido: "Sí, por favor, me envías el Oud Ispahan. ¿Cómo pago?", chatbot_accion: "Confirmación de Compra"}, { es_entrada: false, contenido: "¡Excelente! Confirmamos que Oud Ispahan está en STOCK. ¿Deseas proceder con la compra por 120€?", chatbot_accion: "Confirmación de Stock"}, { es_entrada: true, contenido: "Estoy buscando el perfume Oud Ispahan. ¿Lo tienen?", chatbot_accion: "Búsqueda de Producto"}, { es_entrada: false, contenido: "Hola Andrea! Soy el Chatbot de Perfumes Árabes. ¿En qué puedo ayudarte hoy?", chatbot_accion: "Inicio de Conversación"}]
             },
@@ -102,6 +129,8 @@
                 monto: 45.00,
                 estado: "Completada",
                 fecha_pedido: "2025-11-27T18:45:00Z",
+                asignado_a: "Usuario B", 
+                fecha_ultima_accion: "2025-11-27T20:00:00Z",
                 clientes: { nombre: "Ricardo Perez", numero_whatsapp: "+5491166665678" },
                 logs: [{ es_entrada: true, contenido: "Recibido, muchas gracias. Ya lo probé y me encantó.", chatbot_accion: "Feedback Positivo"}, { es_entrada: false, contenido: "Pedido enviado. El número de tracking es: T4G56. Que lo disfrutes!", chatbot_accion: "Pedido Enviado"}, { es_entrada: true, contenido: "Quiero el Shaghaf Oud, ya lo compré antes.", chatbot_accion: "Recompra Directa"}]
             },
@@ -111,6 +140,8 @@
                 monto: 70.00,
                 estado: "Cancelada",
                 fecha_pedido: "2025-11-27T10:15:00Z",
+                asignado_a: "N/A", 
+                fecha_ultima_accion: "2025-11-27T10:30:00Z",
                 clientes: { nombre: "Javier López", numero_whatsapp: "+5491177779012" },
                 logs: [{ es_entrada: true, contenido: "Quiero el perfume Yatagan, sino está no me interesa.", chatbot_accion: "Selección Única"}, { es_entrada: false, contenido: "Lo sentimos, Yatagan está agotado. ¿Desea ver otras opciones?", chatbot_accion: "Notificar Agotado"}]
             },
@@ -120,23 +151,90 @@
                 monto: 250.00,
                 estado: "Pendiente",
                 fecha_pedido: "2025-11-28T12:00:00Z",
+                asignado_a: "N/A", 
+                fecha_ultima_accion: "2025-11-28T12:00:00Z",
                 clientes: { nombre: "Laura Giménez", numero_whatsapp: "+5491188883456" },
                 logs: [{ es_entrada: true, contenido: "El Oud Wood de 50ml. Estoy esperando el link de pago.", chatbot_accion: "Esperando Pago"}, { es_entrada: false, contenido: "Confirmo stock de Oud Wood. Costo 250€. En un momento le enviamos el link.", chatbot_accion: "Confirmación de Stock"}]
             }
         ];
         
-        // ----------------------------------------------------------------------
-        // 2. LÓGICA DE FILTRADO Y RENDERIZADO
-        // ----------------------------------------------------------------------
-        
         const pedidosList = document.getElementById('pedidos-list');
         const pedidosCount = document.getElementById('pedidos-count');
         const modal = document.getElementById('detail-modal');
 
+        // ----------------------------------------------------------------------
+        // 2. LÓGICA DE ASIGNACIÓN Y ACTUALIZACIÓN DE ESTADO
+        // ----------------------------------------------------------------------
+        
         /**
-         * Renderiza los pedidos en la vista principal.
-         * @param {Array} data - Array de pedidos a renderizar.
+         * Maneja el clic en el botón de asignación.
          */
+        function handleAssignClick() {
+            if (currentPedidoId !== null) {
+                asignarPedido(currentPedidoId, loggedUser);
+            }
+        }
+
+        /**
+         * Asigna el pedido al usuario logueado.
+         * @param {number} id - ID del pedido.
+         * @param {string} usuario - Nombre del usuario logueado.
+         */
+        function asignarPedido(id, usuario) {
+            const pedido = mockData.find(p => p.id === id);
+            
+            if (pedido && pedido.estado === 'Pendiente') {
+                if (pedido.asignado_a === 'N/A') {
+                    pedido.asignado_a = usuario;
+                    pedido.fecha_ultima_accion = new Date().toISOString();
+                    
+                    filterPedidos();
+                    showDetail(id);
+                    alert(`✅ Pedido #${id} tomado y asignado a ${usuario}.`);
+                } else if (pedido.asignado_a === usuario) {
+                    alert(`ℹ️ El pedido #${id} ya está asignado a ti.`);
+                } else {
+                    alert(`❌ El pedido #${id} ya está siendo gestionado por ${pedido.asignado_a}. No puedes tomarlo.`);
+                }
+            } else if (pedido.estado !== 'Pendiente') {
+                 alert(`❌ El pedido #${id} ya está ${pedido.estado} y no puede ser re-asignado.`);
+            }
+        }
+
+        /**
+         * Actualiza el estado de un pedido.
+         * @param {number} id - ID del pedido.
+         * @param {string} nuevoEstado - Nuevo estado ('Completada' o 'Cancelada').
+         */
+        function actualizarEstado(id, nuevoEstado) {
+            const pedido = mockData.find(p => p.id === id);
+            
+            if (pedido && pedido.estado === 'Pendiente') {
+                if (pedido.asignado_a !== loggedUser && pedido.asignado_a !== 'N/A') {
+                    alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}.`);
+                    return;
+                }
+                
+                // Si está pendiente y el usuario actual lo tiene asignado (o no está asignado a nadie)
+                pedido.estado = nuevoEstado;
+                pedido.fecha_ultima_accion = new Date().toISOString();
+                pedido.asignado_a = pedido.asignado_a !== 'N/A' ? pedido.asignado_a : loggedUser; // Asignarlo si no lo estaba
+                
+                filterPedidos();
+                closeModal();
+                alert(`🎉 Pedido #${id} marcado como ${nuevoEstado}.`);
+            } else if (pedido.estado === nuevoEstado) {
+                alert(`ℹ️ El pedido #${id} ya es ${nuevoEstado}.`);
+            } else {
+                alert(`❌ El pedido #${id} ya está ${pedido.estado} y no puede ser modificado.`);
+            }
+        }
+
+
+        // ----------------------------------------------------------------------
+        // 3. LÓGICA DE FILTRADO Y RENDERIZADO
+        // ----------------------------------------------------------------------
+        
         function renderPedidos(data) {
             pedidosList.innerHTML = ''; 
             pedidosCount.textContent = data.length;
@@ -150,17 +248,18 @@
                 const item = document.createElement('div');
                 item.className = 'pedido-item';
                 
-                // 1. Asignar clase de estado para el borde y el neón
                 const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; 
                 item.classList.add(estadoClass);
 
-                // 2. Hacer el contenedor clickeable
                 item.setAttribute('onclick', `showDetail(${p.id})`);
+
+                const assignedUser = p.asignado_a && p.asignado_a !== 'N/A' ? 
+                    `<br><small style="color: #00fff2; font-weight: bold;">Asignado: ${p.asignado_a}</small>` : 
+                    `<br><small style="color: #f39c12;">Sin Asignar</small>`;
 
                 const clientName = p.clientes.nombre || `(Núm: ${p.clientes.numero_whatsapp})`;
                 const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
                 
-                // 3. Contenido interno
                 item.innerHTML = `
                     <p style="font-size: 1.1em; margin: 0 0 5px 0; color: #c501e2;">
                         ${p.producto_nombre} 
@@ -170,6 +269,7 @@
                     </p>
                     <p style="margin: 0;">
                         <small>Cliente: ${clientName}</small>
+                        ${assignedUser}
                     </p>
                     <small style="color: #999;">Pedido #${p.id} | ${date}</small>
                 `;
@@ -177,26 +277,19 @@
             });
         }
 
-        /**
-         * Lógica principal de filtrado MULTI-SELECCIÓN.
-         */
+
         function filterPedidos() {
             const checkboxes = document.querySelectorAll('.filter-checkbox');
-            
-            // 1. Recoger los estados seleccionados (en minúsculas)
             const activeFilters = Array.from(checkboxes)
                 .filter(cb => cb.checked)
-                .map(cb => cb.value); // 'pendiente', 'completada', 'cancelada'
+                .map(cb => cb.value); 
             
             let filteredData;
 
             if (activeFilters.length === 0) {
-                // Si no hay filtros seleccionados, mostramos todos los pedidos.
                 filteredData = mockData; 
             } else {
-                // 2. Filtrar los datos: El pedido debe COINCIDIR con CUALQUIER filtro activo.
                 filteredData = mockData.filter(p => {
-                    // Convertir el estado del pedido a minúsculas para la comparación
                     const normalizedState = p.estado.toLowerCase().replace(/á/g, 'a');
                     return activeFilters.includes(normalizedState);
                 });
@@ -205,9 +298,6 @@
             renderPedidos(filteredData);
         }
 
-        /**
-         * Ayudante para obtener el color de texto según el estado.
-         */
         function getEstadoColor(estado) {
             if (estado === 'Pendiente') return '#f39c12';
             if (estado === 'Completada') return '#2ecc71';
@@ -216,29 +306,65 @@
         }
 
         // ----------------------------------------------------------------------
-        // 3. FUNCIONALIDAD DEL MODAL
+        // 4. FUNCIONALIDAD DEL MODAL (ACTUALIZADO PARA GESTIÓN)
         // ----------------------------------------------------------------------
         
-        /**
-         * Muestra el modal con los datos del pedido seleccionado.
-         */
         function showDetail(pedidoId) {
             const pedido = mockData.find(p => p.id === pedidoId);
             if (!pedido) return;
 
-            // Llenar los campos de Detalle
+            currentPedidoId = pedidoId; 
+
             document.getElementById('modal-title').textContent = `Detalle del Pedido #${pedido.id}`;
             document.getElementById('detail-product').textContent = pedido.producto_nombre;
             document.getElementById('detail-price').textContent = `${pedido.monto.toFixed(2)}€`;
             document.getElementById('detail-status').textContent = pedido.estado;
             document.getElementById('detail-client-name').textContent = pedido.clientes.nombre;
             document.getElementById('detail-client-id').textContent = pedido.clientes.numero_whatsapp;
+            
+            // Llenar los campos de GESTIÓN
+            const lastActionDate = new Date(pedido.fecha_ultima_accion).toLocaleString('es-ES');
+            document.getElementById('detail-assigned-user').textContent = pedido.asignado_a || 'N/A';
+            document.getElementById('detail-last-action-date').textContent = lastActionDate;
+            
+            // Controlar la visibilidad y texto de los botones de acción
+            const assignBtn = document.getElementById('assign-btn');
+            const completeBtn = document.getElementById('complete-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            assignBtn.textContent = `Asignarme (${loggedUser})`;
+
+            if (pedido.estado === 'Pendiente') {
+                completeBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+                
+                if (pedido.asignado_a === 'N/A') {
+                    assignBtn.classList.remove('hidden');
+                    assignBtn.disabled = false;
+                    // Los botones de Finalización están deshabilitados hasta que alguien lo toma (opcional)
+                    // completeBtn.disabled = true;
+                    // cancelBtn.disabled = true;
+
+                } else if (pedido.asignado_a === loggedUser) {
+                    assignBtn.classList.add('hidden'); // Ocultar si ya lo tiene el usuario logueado
+                    completeBtn.disabled = false;
+                    cancelBtn.disabled = false;
+                } else {
+                    assignBtn.classList.add('hidden'); 
+                    completeBtn.disabled = true;
+                    cancelBtn.disabled = true;
+                }
+            } else {
+                // Si ya está Completada o Cancelada
+                assignBtn.classList.add('hidden');
+                completeBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+            }
+
 
             // Llenar el Log de Conversación
             const logContainer = document.getElementById('detail-conversation-log');
             logContainer.innerHTML = '';
-            
-            // Revertir el orden para que la conversación empiece desde el inicio
             const sortedLogs = [...pedido.logs].reverse(); 
 
             sortedLogs.forEach(log => {
@@ -258,34 +384,42 @@
                 logContainer.appendChild(logItem);
             });
             
-            // Mostrar el Modal
             modal.classList.add('visible');
         }
 
-        /**
-         * Oculta el modal.
-         */
         function closeModal() {
             modal.classList.remove('visible');
         }
 
         // ----------------------------------------------------------------------
-        // 4. INICIALIZACIÓN Y LISTENERS
+        // 5. INICIALIZACIÓN Y LISTENERS
         // ----------------------------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Cargar todos los pedidos al inicio
+            const userSelect = document.getElementById('logged-user-select');
+            
+            // Asignar el usuario inicial al cargar
+            loggedUser = userSelect.value;
+
+            // Listener para el selector de usuario
+            userSelect.addEventListener('change', (e) => {
+                loggedUser = e.target.value;
+                document.getElementById('message').textContent = `Usuario logueado cambiado a: ${loggedUser}.`;
+                // Refrescar el detalle si está abierto para actualizar los permisos
+                if(currentPedidoId !== null && modal.classList.contains('visible')) {
+                    showDetail(currentPedidoId);
+                }
+            });
+
+
             renderPedidos(mockData); 
             
-            // Asignar el listener a todos los checkboxes
             document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', filterPedidos);
             });
 
-            // Aplicar el filtro inicial (muestra todos, ya que todos están marcados por defecto en el HTML)
             filterPedidos();
 
-            // Permitir cerrar el modal con la tecla ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === "Escape") {
                     closeModal();
