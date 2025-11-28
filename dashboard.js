@@ -45,8 +45,6 @@ async function fetchPedidos() {
 
         const data = await response.json();
         
-        // Asigna la data cargada. Es crucial que los nombres de campo (p.ej., producto_nombre, clientes, logs) 
-        // coincidan con los nombres de columna de tu tabla de Supabase.
         mockData = data; 
         
         console.log(`✅ ${data.length} pedidos cargados correctamente.`);
@@ -193,7 +191,6 @@ function renderPedidos(data) {
         const item = document.createElement('div');
         item.className = 'pedido-item';
         
-        // Asegura que p.estado no sea null/undefined antes de manipularlo
         const estado = p.estado || 'N/A';
         const estadoClass = `estado-${estado.toLowerCase().replace(/á/g, 'a')}`; 
         item.classList.add(estadoClass);
@@ -204,8 +201,7 @@ function renderPedidos(data) {
             `<br><small style="color: #00fff2; font-weight: bold;">Asignado: ${p.asignado_a}</small>` : 
             `<br><small style="color: #f39c12;">Sin Asignar</small>`;
         
-        // AJUSTE CRÍTICO: Asegurarse de que 'clientes' exista y sea el formato correcto
-        // Si 'clientes' es una columna JSON/JSONB en Supabase, esto funciona:
+        // Asumiendo que 'clientes' es una columna JSON/JSONB
         const clientName = (p.clientes && p.clientes.nombre) || 'Cliente Desconocido';
         const date = p.fecha_pedido ? new Date(p.fecha_pedido).toLocaleDateString('es-ES') : 'N/A';
         
@@ -344,12 +340,30 @@ function closeModal() {
 }
 
 // ----------------------------------------------------------------------
-// 6. INICIALIZACIÓN Y LISTENERS
+// 6. FUNCIONALIDAD DE CIERRE DE SESIÓN
+// ----------------------------------------------------------------------
+
+/**
+ * Función que maneja el cierre de sesión, redireccionando a index.html.
+ */
+function handleLogout() {
+    console.log(`Cerrando sesión para ${loggedUser}...`);
+    // Aquí se integraría la lógica de Supabase para cerrar la sesión (supabase.auth.signOut())
+    
+    // REDIRECCIONAR al login (index.html)
+    alert("¡Sesión cerrada! Redireccionando a la página de inicio de sesión.");
+    window.location.href = 'index.html'; 
+}
+
+
+// ----------------------------------------------------------------------
+// 7. INICIALIZACIÓN Y LISTENERS
 // ----------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
     const userSelect = document.getElementById('logged-user-select');
-    
+    const logoutBtn = document.getElementById('logout-btn'); 
+
     loggedUser = userSelect.value;
 
     userSelect.addEventListener('change', (e) => {
@@ -359,6 +373,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showDetail(currentPedidoId);
         }
     });
+    
+    // Enlaza el botón de cerrar sesión
+    logoutBtn.addEventListener('click', handleLogout); 
 
     // Carga los datos de Supabase al iniciar
     fetchPedidos();
