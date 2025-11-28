@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Gestión de Interacciones de WhatsApp Business</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <button class="logout-btn" onclick="logoutUser(_supabase)">Cerrar Sesión</button>
     <h1>🤖 Panel de Control de WhatsApp Business</h1>
-    <p id="user-info" style="color: var(--text-muted); font-family: 'Montserrat', sans-serif;">Cargando...</p>
+    <p id="user-info" style="color: var(--text-muted); font-family: var(--font-body);">Cargando...</p>
 
     <div class="settings">
         <h3>🔧 Configuración de Datos</h3>
-        <p style="color: var(--text-muted);">Asegúrate de que la tabla **`interacciones`** exista en Supabase.</p>
+        <p style="color: var(--text-muted); font-family: var(--font-body);">Asegúrate de que la tabla **`interacciones`** exista en Supabase.</p>
     </div>
 
     <hr>
@@ -23,7 +24,7 @@
     <div class="container">
         <div class="data-viewer">
             <h2>💬 Interacciones Recientes</h2>
-            <p style="color: var(--text-muted);">Datos en tiempo real cargados desde Supabase.</p>
+            <p style="color: var(--text-muted); font-family: var(--font-body);">Datos en tiempo real cargados desde Supabase.</p>
             <ul id="chat-data">
                 <li>Verificando sesión y cargando datos...</li>
             </ul>
@@ -32,9 +33,9 @@
         <div class="data-viewer">
             <h2>📊 Resumen de Tareas</h2>
             <div id="sales-summary">
-                <p><strong>Pedidos Tomados:</strong> <span id="orders-count" style="color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple);">0</span></p>
-                <p><strong>Ventas Cerradas:</strong> <span id="sales-count" style="color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple);">0</span></p>
-                <p><strong>Productos Recomendados:</strong> <span id="recom-count" style="color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple);">0</span></p>
+                <p style="font-family: var(--font-body);"><strong>Pedidos Tomados:</strong> <span id="orders-count" style="color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple);">0</span></p>
+                <p style="font-family: var(--font-body);"><strong>Ventas Cerradas:</strong> <span id="sales-count" style="color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple);">0</span></p>
+                <p style="font-family: var(--font-body);"><strong>Productos Recomendados:</strong> <span id="recom-count" style="color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple);">0</span></p>
             </div>
         </div>
     </div>
@@ -47,7 +48,7 @@
             
             <div id="chat-history">
                 </div>
-            <p style="text-align: center; margin-top: 15px; color: var(--text-muted);">**NOTA:** Esto es un demo de Front-end.</p>
+            <p style="text-align: center; margin-top: 15px; color: var(--text-muted); font-family: var(--font-body);">**NOTA:** Esto es un demo de Front-end.</p>
         </div>
     </div>
 
