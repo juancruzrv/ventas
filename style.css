@@ -1,15 +1,19 @@
 /* ================================================================= */
-/* style.css - Estilos Oscuros, Neón, Granularidad para el Dashboard */
+/* style.css - Estilos Oscuros, Neón, Granularidad (FUENTES ACTUALIZADAS) */
 /* ================================================================= */
 
 /* === Variables CSS para colores === */
 :root {
-    --neon-purple: #652ec7; /* Color principal de neón */
-    --dark-bg: #1a1a2e;     /* Fondo principal oscuro */
-    --card-bg: #16213e;     /* Fondo de tarjetas/contenedores */
-    --text-light: #e0e0e0;  /* Texto claro */
-    --text-muted: #a0a0a0;  /* Texto secundario/desvanecido */
-    --border-dark: #3a3a5a; /* Bordes más oscuros */
+    --neon-purple: #652ec7;     /* Color principal de neón */
+    --dark-bg: #1a1a2e;         /* Fondo principal oscuro */
+    --card-bg: #16213e;         /* Fondo de tarjetas/contenedores */
+    --text-light: #e0e0e0;      /* Texto claro */
+    --text-muted: #a0a0a0;      /* Texto secundario/desvanecido */
+    --border-dark: #3a3a5a;     /* Bordes más oscuros */
+
+    /* FUENTES ACTUALIZADAS */
+    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Fira Code', monospace; 
 }
 
 /* === Textura Granular (Background) === */
@@ -20,16 +24,16 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWGBgYzjGajAAAAHHRSTlMAAAQGBwkOFBgbHyAhJCcqLC4wMjM0Nj8/QERmZ2pv8Wb9AAAAQklEQVRIx+3MyRKAMAwAQYn/oXf/1n0tTgo7C3kLh+k1pLzG9xIu+xU1n4iI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/B4nJjG8+oAAAAAASUVORK5CYII=');
-    background-size: 2px 2px; /* Tamaño del grano */
-    opacity: 0.05; /* Suavidad del grano */
-    pointer-events: none; /* No interfiere con clics */
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWGBgYzjGajAAAAHHRSTlMAAAQGBwkOFBgbHyAhJCcqLC4wMjM0Nj8/QERmZ2pv8Wb9AAAAQklEQVRIx+3MyRKAMAwAQYn/oXf/1n0tTgo7C3kLh+k1pLzG9xIu+xU1n4iI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/IqI/B4nJjG8+oAAAAAASUVORK5CYII=');
+    background-size: 2px 2px; 
+    opacity: 0.05; 
+    pointer-events: none; 
     z-index: -1;
 }
 
 /* === General & Layout === */
 body {
-    font-family: 'Montserrat', sans-serif; /* Fuente moderna */
+    font-family: var(--font-body); /* Inter */
     margin: 0;
     padding: 20px;
     background-color: var(--dark-bg);
@@ -38,18 +42,20 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Orbitron', sans-serif; /* Fuente más futurista para títulos */
+    font-family: var(--font-heading); /* Fira Code */
     color: var(--text-light);
-    text-shadow: 0 0 5px var(--neon-purple), 0 0 10px var(--neon-purple); /* Efecto neón en títulos */
+    text-shadow: 0 0 5px var(--neon-purple), 0 0 10px var(--neon-purple); 
     margin-bottom: 15px;
+    /* Ajustes para Fira Code */
+    font-weight: 500;
 }
 
 h1 {
     font-size: 2.5em;
-    border-bottom: 2px solid var(--neon-purple); /* Subrayado de neón */
+    border-bottom: 2px solid var(--neon-purple); 
     padding-bottom: 10px;
     display: inline-block;
-    letter-spacing: 2px;
+    letter-spacing: 1px; /* Menos espaciado que Orbitron */
 }
 
 hr {
@@ -69,7 +75,7 @@ hr {
     padding: 30px;
     border-radius: 12px;
     background-color: var(--card-bg);
-    box-shadow: 0 0 15px rgba(0,0,0,0.4), 0 0 5px var(--neon-purple); /* Sombra con toque neón */
+    box-shadow: 0 0 15px rgba(0,0,0,0.4), 0 0 5px var(--neon-purple); 
     min-height: 200px;
     border: 1px solid var(--border-dark);
 }
@@ -85,14 +91,14 @@ hr {
     padding: 15px 0;
     font-size: 0.95em;
     transition: background-color 0.2s, box-shadow 0.2s;
-    display: flex; /* Para alinear el botón */
+    display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 #chat-data li:hover {
     background-color: #2a2a4a;
-    box-shadow: 0 0 8px rgba(101, 46, 199, 0.3); /* Sombra neón al pasar el ratón */
+    box-shadow: 0 0 8px rgba(101, 46, 199, 0.3);
 }
 
 /* === Botones === */
@@ -103,7 +109,7 @@ button {
     cursor: pointer;
     font-weight: 600;
     transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body); /* Inter en botones */
     letter-spacing: 0.8px;
 }
 
@@ -136,15 +142,15 @@ button {
 
 /* === Estilos de Interacción (Usados en dashboard.js) === */
 .interaction-venta {
-    color: #39ff14; /* Verde brillante */
+    color: #39ff14; 
     text-shadow: 0 0 4px #39ff14;
 }
 .interaction-pedido {
-    color: #ffd700; /* Dorado brillante */
+    color: #ffd700; 
     text-shadow: 0 0 4px #ffd700;
 }
 .interaction-pregunta {
-    color: #00ffff; /* Cian brillante */
+    color: #00ffff; 
     text-shadow: 0 0 4px #00ffff;
 }
 
@@ -176,7 +182,7 @@ button {
 }
 
 input[type="email"], input[type="password"] {
-    width: calc(100% - 20px); /* Ajuste de padding */
+    width: calc(100% - 20px);
     padding: 15px;
     margin: 10px 0;
     border: 1px solid var(--border-dark);
@@ -185,6 +191,7 @@ input[type="email"], input[type="password"] {
     font-size: 16px;
     background-color: #2c2c4a;
     color: var(--text-light);
+    font-family: var(--font-body); /* Inter en inputs */
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -210,7 +217,7 @@ input[type="email"]:focus, input[type="password"]:focus {
 }
 
 #error-message {
-    color: #ff4d4d; /* Rojo brillante para errores */
+    color: #ff4d4d;
     margin-top: 15px;
     font-size: 1em;
     text-shadow: 0 0 3px #ff4d4d;
@@ -219,13 +226,13 @@ input[type="email"]:focus, input[type="password"]:focus {
 /* === Modal (Chat History) === */
 #chat-modal {
     position: fixed; 
-    z-index: 100; /* Asegura que esté por encima de todo */
+    z-index: 100; 
     left: 0; 
     top: 0; 
     width: 100%; 
     height: 100%; 
     overflow: auto; 
-    background-color: rgba(0,0,0,0.7); /* Fondo oscuro semitransparente */
+    background-color: rgba(0,0,0,0.7); 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -250,11 +257,11 @@ input[type="email"]:focus, input[type="password"]:focus {
 }
 
 #chat-history {
-    height: 50vh; /* Altura más flexible */
+    height: 50vh; 
     overflow-y: auto; 
     border: 1px solid #444; 
     padding: 15px; 
-    background-color: #2b2b4d; /* Fondo de chat más oscuro */
+    background-color: #2b2b4d; 
     border-radius: 8px;
     margin-bottom: 20px;
     box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
@@ -262,7 +269,7 @@ input[type="email"]:focus, input[type="password"]:focus {
 
 .message-bubble {
     padding: 10px;
-    border-radius: 12px; /* Burbujas más suaves */
+    border-radius: 12px; 
     margin-bottom: 10px;
     max-width: 75%;
     clear: both;
@@ -273,17 +280,17 @@ input[type="email"]:focus, input[type="password"]:focus {
 }
 
 .client-message {
-    background-color: #4a154b; /* Púrpura oscuro para cliente */
+    background-color: #4a154b; 
     color: white;
     float: right;
-    border-bottom-right-radius: 2px; /* Esquina de whatsapp */
+    border-bottom-right-radius: 2px;
 }
 
 .bot-message {
-    background-color: #2c3e50; /* Azul grisáceo para bot */
+    background-color: #2c3e50;
     color: white;
     float: left;
-    border-bottom-left-radius: 2px; /* Esquina de whatsapp */
+    border-bottom-left-radius: 2px;
 }
 
 .message-time {
@@ -305,7 +312,7 @@ input[type="email"]:focus, input[type="password"]:focus {
 }
 
 #close-modal:hover {
-    color: var(--neon-purple); /* Neón al pasar el ratón */
+    color: var(--neon-purple);
     text-shadow: 0 0 5px var(--neon-purple);
 }
 
