@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - VISTA PREVIA (DATOS SIMULADOS)</title>
+    
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <div id="dashboard-content" style="display: block;">
+    
+        <div class="header">
+            <h1>📊 Panel de Control del Chatbot</h1>
+            <button id="logout-btn">Cerrar Sesión</button>
+        </div>
+        
+        <div id="status-bar">
+            Estado: <span id="message">Vista previa de datos simulados</span>
+        </div>
+
+        <div class="card" style="border-left-color: #3498db;">
+            <h3>📈 Métricas Clave</h3>
+            <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #00fff2;">0</span></p>
+        </div>
+
+        <div class="data-grid">
+            
+            <div class="card">
+                <h3>🛒 Últimos Pedidos</h3>
+                <ul id="pedidos-list">
+                    <li>Cargando pedidos simulados...</li>
+                </ul>
+            </div>
+            
+            <div class="card" style="border-left-color: #00fff2;">
+                <h3>💬 Logs de Conversación Reciente</h3>
+                <ul id="conversacion-list">
+                    <li>Cargando logs simulados...</li>
+                </ul>
+            </div>
+            
+        </div>
+        
+    </div> 
+
+    <script>
+        // ----------------------------------------------------------------------
+        // 1. DATOS SIMULADOS (JSON que vendría de Supabase)
+        // ----------------------------------------------------------------------
+
+        // A. SIMULACIÓN DE PEDIDOS (Se simulan 3)
+        const mockPedidos = [
+            {
+                id: 105,
+                producto_servicio: "Instalación de Fibra Óptica (Plan Premium)",
+                monto: 59.99,
+                estado: "Pendiente",
+                fecha_pedido: "2025-11-28T09:30:00Z",
+                clientes: { nombre: "Andrea García", numero_whatsapp: 5491155551234 }
+            },
+            {
+                id: 104,
+                producto_servicio: "Recarga de Saldo (5GB)",
+                monto: 15.00,
+                estado: "Completado",
+                fecha_pedido: "2025-11-27T18:45:00Z",
+                clientes: { nombre: "Ricardo Perez", numero_whatsapp: 5491166665678 }
+            },
+            {
+                id: 103,
+                producto_servicio: "Soporte Técnico Nivel 2",
+                monto: 0.00,
+                estado: "En proceso",
+                fecha_pedido: "2025-11-27T10:15:00Z",
+                clientes: { nombre: "Javier López", numero_whatsapp: 5491177779012 }
+            }
+        ];
+
+        // B. SIMULACIÓN DE CONVERSACIÓN (Se simulan 5 interacciones)
+        const mockLogs = [
+            {
+                es_entrada: true, // Cliente -> Bot
+                contenido: "Sí, por favor, agendemos la instalación de la fibra para el martes por la mañana.",
+                chatbot_accion: "Confirmación de Cita",
+                created_at: "2025-11-28T10:05:00Z"
+            },
+            {
+                es_entrada: false, // Bot -> Cliente
+                contenido: "Perfecto, Andrea. Su solicitud de instalación ha sido registrada. ¿Desea confirmar la cita para el martes 3/12 a las 9:00 AM?",
+                chatbot_accion: "Solicitar Confirmación",
+                created_at: "2025-11-28T10:04:00Z"
+            },
+            {
+                es_entrada: true, // Cliente -> Bot
+                contenido: "Quiero el plan de Fibra Óptica Premium.",
+                chatbot_accion: "Selección de Plan",
+                created_at: "2025-11-28T09:45:00Z"
+            },
+            {
+                es_entrada: false, // Bot -> Cliente
+                contenido: "Claro, ¿qué tipo de asistencia necesita? Por favor, escriba '1' para Internet o '2' para Móvil.",
+                chatbot_accion: "Menú Principal",
+                created_at: "2025-11-28T09:40:00Z"
+            },
+            {
+                es_entrada: true, // Cliente -> Bot
+                contenido: "hola necesito ayuda con la instalación",
+                chatbot_accion: "Inicio de Conversación",
+                created_at: "2025-11-28T09:35:00Z"
+            }
+        ];
+        
+        // ----------------------------------------------------------------------
+        // 2. LÓGICA DE CARGA (Funciona como una versión simplificada de dashboard.js)
+        // ----------------------------------------------------------------------
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pedidosList = document.getElementById('pedidos-list');
+            const pedidosCount = document.getElementById('pedidos-count');
+            const conversacionList = document.getElementById('conversacion-list');
+
+            // --- Carga de Pedidos ---
+            pedidosCount.textContent = mockPedidos.length; 
+            pedidosList.innerHTML = ''; 
+            
+            mockPedidos.forEach(p => {
+                const listItem = document.createElement('li');
+                const clientName = p.clientes.nombre || `+${p.clientes.numero_whatsapp}`;
+                // Formateo simple de fecha (sin librerías, solo para la prueba)
+                const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
+                
+                listItem.innerHTML = `
+                    <span style="font-weight: bold;">[${p.estado}]</span> ${p.producto_servicio} (${p.monto}€)<br>
+                    <small>Cliente: ${clientName} - ${date}</small>
+                `;
+                pedidosList.appendChild(listItem);
+            });
+
+            // --- Carga de Logs ---
+            conversacionList.innerHTML = '';
+            mockLogs.forEach(log => {
+                const direction = log.es_entrada ? 'Cliente' : 'Bot';
+                // Usamos los colores de neón definidos en style.css para diferenciar
+                const style = log.es_entrada ? 'font-weight: bold; color: #00fff2;' : 'color: #c501e2;';
+
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span style="${style}">${direction}</span>: ${log.contenido.substring(0, 70)}...<br>
+                    <small>(${log.chatbot_accion || 'Mensaje'})</small>
+                `;
+                conversacionList.appendChild(listItem);
+            });
+        });
+
+    </script>
+</body>
+</html>
