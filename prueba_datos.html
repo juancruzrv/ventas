@@ -163,9 +163,6 @@
         // 2. LÓGICA DE ASIGNACIÓN Y ACTUALIZACIÓN DE ESTADO
         // ----------------------------------------------------------------------
         
-        /**
-         * Maneja el clic en el botón de asignación.
-         */
         function handleAssignClick() {
             if (currentPedidoId !== null) {
                 asignarPedido(currentPedidoId, loggedUser);
@@ -184,7 +181,7 @@
                     pedido.fecha_ultima_accion = new Date().toISOString();
                     
                     filterPedidos();
-                    showDetail(id);
+                    showDetail(id); // Refresca el modal para mostrar los nuevos botones
                     alert(`✅ Pedido #${id} tomado y asignado a ${usuario}.`);
                 } else if (pedido.asignado_a === usuario) {
                     alert(`ℹ️ El pedido #${id} ya está asignado a ti.`);
@@ -204,16 +201,14 @@
             
             if (pedido && pedido.estado === 'Pendiente') {
                 
-                // Permitir finalizar si el usuario lo tiene asignado O si no está asignado a nadie
-                if (pedido.asignado_a !== loggedUser && pedido.asignado_a !== 'N/A') {
-                    alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}.`);
+                // Requerimiento: Solo puede finalizar si está asignado al usuario logueado
+                if (pedido.asignado_a !== loggedUser) {
+                    alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}. Solo el usuario asignado puede completarlo/cancelarlo.`);
                     return;
                 }
                 
                 pedido.estado = nuevoEstado;
                 pedido.fecha_ultima_accion = new Date().toISOString();
-                // Si no estaba asignado, se asigna al usuario que lo finaliza
-                pedido.asignado_a = pedido.asignado_a !== 'N/A' ? pedido.asignado_a : loggedUser; 
                 
                 filterPedidos();
                 closeModal();
@@ -282,7 +277,6 @@
             let filteredData;
 
             if (activeFilters.length === 0) {
-                // Si no hay filtros seleccionados, mostramos todos los pedidos.
                 filteredData = mockData; 
             } else {
                 filteredData = mockData.filter(p => {
@@ -302,7 +296,7 @@
         }
 
         // ----------------------------------------------------------------------
-        // 4. FUNCIONALIDAD DEL MODAL
+        // 4. FUNCIONALIDAD DEL MODAL (Lógica de visibilidad corregida)
         // ----------------------------------------------------------------------
         
         function showDetail(pedidoId) {
@@ -331,28 +325,32 @@
             assignBtn.textContent = `Asignarme (${loggedUser})`;
 
             if (pedido.estado === 'Pendiente') {
-                completeBtn.classList.remove('hidden');
-                cancelBtn.classList.remove('hidden');
                 
-                // Si no está asignado O está asignado al usuario logueado
-                if (pedido.asignado_a === 'N/A' || pedido.asignado_a === loggedUser) {
+                if (pedido.asignado_a === 'N/A') {
+                    // 1. PENDIENTE Y SIN ASIGNAR: Solo mostrar botón de Asignar
                     assignBtn.classList.remove('hidden');
                     assignBtn.disabled = false;
+                    completeBtn.classList.add('hidden'); // Ocultar
+                    cancelBtn.classList.add('hidden'); // Ocultar
+
+                } else if (pedido.asignado_a === loggedUser) {
+                    // 2. PENDIENTE Y ASIGNADO AL USUARIO LOGUEADO: Mostrar Completar/Cancelar (activos)
+                    assignBtn.classList.add('hidden');
+                    completeBtn.classList.remove('hidden');
+                    cancelBtn.classList.remove('hidden');
                     completeBtn.disabled = false;
                     cancelBtn.disabled = false;
 
-                    if (pedido.asignado_a === loggedUser) {
-                        assignBtn.classList.add('hidden'); // Ocultar si ya lo tiene el usuario logueado
-                    }
-
                 } else {
-                    // Asignado a OTRA PERSONA
+                    // 3. PENDIENTE Y ASIGNADO A OTRO USUARIO: Mostrar Completar/Cancelar (inactivos/deshabilitados)
                     assignBtn.classList.add('hidden'); 
-                    completeBtn.disabled = true; // Deshabilitar si no es su asignación
-                    cancelBtn.disabled = true;  // Deshabilitar si no es su asignación
+                    completeBtn.classList.remove('hidden'); // Se muestran, pero deshabilitados
+                    cancelBtn.classList.remove('hidden'); // Se muestran, pero deshabilitados
+                    completeBtn.disabled = true; 
+                    cancelBtn.disabled = true;
                 }
             } else {
-                // Si ya está Completada o Cancelada
+                // Si ya está Completada o Cancelada: Ocultar todo
                 assignBtn.classList.add('hidden');
                 completeBtn.classList.add('hidden');
                 cancelBtn.classList.add('hidden');
@@ -408,7 +406,6 @@
 
             renderPedidos(mockData); 
             
-            // Listener para los checkboxes de filtro
             document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', filterPedidos);
             });
