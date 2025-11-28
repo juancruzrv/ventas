@@ -1,0 +1,128 @@
+/* --- Variables para el Color Neón --- */
+:root {
+    --neon-color: #00FFFF; /* Cian Neón (puedes cambiarlo a verde, rosa, etc.) */
+    --background-dark: #0D1117; /* Fondo muy oscuro */
+    --card-dark: #161B22; /* Tarjeta oscura */
+    --text-light: #EAEAEA; /* Texto claro */
+    --transition-speed: 0.3s;
+    --error-color: #FF6347; /* Rojo neón para errores */
+}
+
+/* --- Base y Centrado Responsive --- */
+body {
+    /* Usa Flexbox para centrar la tarjeta */
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.login-container {
+    background: var(--card-dark);
+    color: var(--text-light);
+    padding: 40px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid var(--neon-color); 
+    
+    /* El efecto Neón principal de la tarjeta */
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 
+                0 0 20px rgba(0, 255, 255, 0.3), 
+                inset 0 0 5px rgba(0, 255, 255, 0.2); 
+    transition: box-shadow var(--transition-speed);
+}
+
+/* Efecto de "encendido" al pasar el ratón */
+.login-container:hover {
+    box-shadow: 0 0 15px var(--neon-color), 0 0 30px var(--neon-color), inset 0 0 10px var(--neon-color);
+}
+
+/* --- Títulos y Texto --- */
+/* Cambiamos el estilo del título para reflejar "Bienvenido" */
+h1 {
+    color: var(--neon-color);
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    /* Efecto de brillo en el texto */
+    text-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(0, 255, 255, 0.5); 
+}
+
+label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--text-light);
+    transition: color var(--transition-speed);
+}
+
+/* --- Campos de Entrada (Inputs) --- */
+input[type="email"], 
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 25px;
+    background-color: #2F363D; 
+    color: var(--text-light);
+    border: 1px solid #444; 
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+/* Efecto Neón al Enfocar el Campo */
+input[type="email"]:focus, 
+input[type="password"]:focus {
+    outline: none; 
+    border-color: var(--neon-color);
+    /* Sombra interior para simular la luz del campo */
+    box-shadow: inset 0 0 8px var(--neon-color); 
+}
+
+/* --- Botón de Acceso --- */
+button {
+    background-color: var(--neon-color);
+    color: var(--background-dark); 
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    /* Sombra que hace que el botón "brille" */
+    box-shadow: 0 0 5px var(--neon-color), 0 0 15px rgba(0, 255, 255, 0.7);
+}
+
+button:hover {
+    background-color: #33FFFF; 
+    /* Aumentar el brillo al pasar el ratón */
+    box-shadow: 0 0 10px var(--neon-color), 0 0 30px rgba(0, 255, 255, 0.9);
+}
+
+/* --- Mensaje de Error --- */
+.error-text {
+    color: var(--error-color); 
+    margin-top: 15px;
+    font-weight: bold;
+    text-shadow: 0 0 3px var(--error-color); 
+}
+
+/* Media Query para responsividad en móviles */
+@media (max-width: 600px) {
+    .login-container {
+        padding: 25px;
+        max-width: 95%; 
+    }
+    h1 {
+        font-size: 1.8em;
+    }
+}
