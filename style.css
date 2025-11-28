@@ -19,8 +19,7 @@ h1 {
 }
 h2 { 
     color: #c501e2; 
-    /* Eliminamos el margin-bottom para que quede al lado del botón X */
-    margin-bottom: 0; 
+    margin-bottom: 0; /* Ajuste para modal-header */
     font-weight: 400;
 }
 h3 { 
@@ -171,7 +170,7 @@ button:hover {
 }
 
 /* ======================================= */
-/* 4. Estilos de Listado de Pedidos y Borde Sólido */
+/* 4. Estilos de Listado de Pedidos y Borde Sólido (Neón Eliminado) */
 /* ======================================= */
 
 #pedidos-list {
@@ -186,6 +185,7 @@ button:hover {
     background: #252525;
     padding: 15px;
     border-radius: 6px;
+    /* SOLO BORDE SÓLIDO */
     border-left: 5px solid transparent; 
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); 
     cursor: pointer;
@@ -202,15 +202,15 @@ button:hover {
 /* Colores de Borde basados en el Estado */
 
 .estado-pendiente {
-    border-left-color: #f39c12;
+    border-left-color: #f39c12; /* Naranja */
 }
 
 .estado-completada {
-    border-left-color: #2ecc71;
+    border-left-color: #2ecc71; /* Verde */
 }
 
 .estado-cancelada {
-    border-left-color: #e74c3c;
+    border-left-color: #e74c3c; /* Rojo */
 }
 
 
@@ -280,7 +280,7 @@ button:hover {
 }
 
 /* ======================================= */
-/* 6. Estilos del Modal y Botones (Ajuste para esquina derecha) */
+/* 6. Estilos del Modal y Botones (Ajuste para esquina derecha y cuadrado) */
 /* ======================================= */
 .modal-overlay {
     position: fixed;
@@ -311,15 +311,14 @@ button:hover {
     border: 2px solid #c501e2;
     max-height: 90vh;
     overflow-y: auto;
-    /* QUITAMOS position: relative; ya que el botón está en modal-header */
 }
 
-/* Nuevo estilo para la cabecera del modal para alinear elementos */
+/* Flexbox para alinear el título y el botón X */
 .modal-header {
     display: flex;
-    justify-content: space-between; /* Empuja el título a la izquierda y el botón a la derecha */
+    justify-content: space-between; 
     align-items: center;
-    margin-bottom: 25px; /* Espacio debajo de la cabecera */
+    margin-bottom: 25px; 
 }
 
 /* === ESTILO CUADRADO DEL BOTÓN DE CIERRE 'X' === */
@@ -335,13 +334,12 @@ button:hover {
     width: 35px; 
     height: 35px;
     line-height: 30px; 
-    border-radius: 5px; /* Cuadrado con bordes suaves */
+    border-radius: 5px; 
     text-align: center;
     padding: 0;
     transition: all 0.2s ease;
-    /* Asegura que el botón se alinea correctamente dentro del flexbox */
     margin-left: 15px; 
-    flex-shrink: 0; /* Evita que se encoja */
+    flex-shrink: 0; 
 }
 .modal-close:hover {
     background: #c501e2; 
@@ -428,7 +426,15 @@ button:hover {
     #logout-btn {
         margin-top: 15px;
     }
-    #action-buttons {
+    .modal-header {
+        flex-direction: column; /* Coloca el botón y el título en filas separadas en móvil */
+        align-items: flex-end; /* Alinea el botón a la derecha */
+    }
+    .modal-header h2 {
+        align-self: flex-start; /* Fuerza al título a la izquierda */
+        margin-bottom: 10px;
+    }
+    .action-buttons {
         flex-direction: column; 
         gap: 10px;
     }
