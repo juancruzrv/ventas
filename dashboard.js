@@ -14,6 +14,7 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ----------------------------------------------------------------------
 // 🚨 FUNCIÓN DE CIERRE DE SESIÓN AISLADA (GARANTÍA DE EJECUCIÓN)
+// Se coloca aquí para garantizar que esté definida globalmente antes de ser llamada por el botón HTML.
 // ----------------------------------------------------------------------
 /**
  * Destruye la sesión de Supabase y luego redirige a index.html.
