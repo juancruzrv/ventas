@@ -19,7 +19,8 @@ h1 {
 }
 h2 { 
     color: #c501e2; 
-    margin-bottom: 25px;
+    /* Eliminamos el margin-bottom para que quede al lado del botón X */
+    margin-bottom: 0; 
     font-weight: 400;
 }
 h3 { 
@@ -279,7 +280,7 @@ button:hover {
 }
 
 /* ======================================= */
-/* 6. Estilos del Modal y Botones (CORRECCIÓN BOTÓN X) */
+/* 6. Estilos del Modal y Botones (Ajuste para esquina derecha) */
 /* ======================================= */
 .modal-overlay {
     position: fixed;
@@ -310,28 +311,40 @@ button:hover {
     border: 2px solid #c501e2;
     max-height: 90vh;
     overflow-y: auto;
+    /* QUITAMOS position: relative; ya que el botón está en modal-header */
 }
 
-/* === CORRECCIÓN DEL BOTÓN DE CIERRE 'X' === */
+/* Nuevo estilo para la cabecera del modal para alinear elementos */
+.modal-header {
+    display: flex;
+    justify-content: space-between; /* Empuja el título a la izquierda y el botón a la derecha */
+    align-items: center;
+    margin-bottom: 25px; /* Espacio debajo de la cabecera */
+}
+
+/* === ESTILO CUADRADO DEL BOTÓN DE CIERRE 'X' === */
 .modal-close {
     /* Base */
-    background: #2c2c2c; /* Fondo oscuro sutil */
-    border: 2px solid #c501e2; /* Borde neón */
-    color: #c501e2; /* Color neón del símbolo X */
+    background: #2c2c2c; 
+    border: 2px solid #c501e2; 
+    color: #c501e2; 
     font-size: 20px;
     cursor: pointer;
     font-weight: bold;
-    /* Apariencia */
-    width: 35px;
+    /* Apariencia: Cuadrado (35x35) con esquinas redondeadas (5px) */
+    width: 35px; 
     height: 35px;
-    line-height: 30px; /* Centra la X verticalmente */
-    border-radius: 50%; /* Hace que sea circular */
+    line-height: 30px; 
+    border-radius: 5px; /* Cuadrado con bordes suaves */
     text-align: center;
     padding: 0;
     transition: all 0.2s ease;
+    /* Asegura que el botón se alinea correctamente dentro del flexbox */
+    margin-left: 15px; 
+    flex-shrink: 0; /* Evita que se encoja */
 }
 .modal-close:hover {
-    background: #c501e2; /* Invierte colores al pasar el ratón */
+    background: #c501e2; 
     color: #1e1e1e;
     box-shadow: 0 0 10px rgba(197, 1, 226, 0.8);
 }
