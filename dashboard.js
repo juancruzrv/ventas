@@ -9,6 +9,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Nombre de la tabla de pedidos (AJUSTA si es diferente)
 const TABLE_NAME = 'pedidos'; 
 
+// Inicialización del cliente de Supabase (CRÍTICO para Auth)
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let currentPedidoId = null;
 let loggedUser = "Usuario A";
 let mockData = []; // Contendrá la data cargada de Supabase
@@ -340,12 +343,45 @@ function closeModal() {
 }
 
 // ----------------------------------------------------------------------
-// 6. INICIALIZACIÓN Y LISTENERS
+// 6. FUNCIONALIDAD DE CIERRE DE SESIÓN (CORREGIDA)
 // ----------------------------------------------------------------------
 
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * Función que maneja el cierre de sesión, llamando a Supabase.auth.signOut() 
+ * para destruir la sesión real antes de la redirección.
+ */
+async function handleLogout() {
+    console.log("Cerrando sesión...");
+    
+    // 1. Destruir la sesión en Supabase
+    const { error } = await supabase.auth.signOut(); 
+
+    if (error) {
+        console.error("Error al cerrar sesión:", error.message);
+        // Opcional: manejar el error si la conexión falla
+    }
+
+    // 2. Redireccionar al index, ahora que el token ya no existe.
+    window.location.href = 'index.html'; 
+}
+
+
+// ----------------------------------------------------------------------
+// 7. INICIALIZACIÓN Y LISTENERS (CORREGIDA LA VERIFICACIÓN DE SESIÓN)
+// ----------------------------------------------------------------------
+
+document.addEventListener('DOMContentLoaded', async () => {
+    
+    // VERIFICACIÓN CRÍTICA DE SESIÓN (EVITA EL BUCLE DE REDIRECCIÓN)
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (error || !user) {
+        console.log("Sesión no detectada o inválida. Redirigiendo a index.html");
+        window.location.href = 'index.html';
+        return; // Detener la ejecución del dashboard si no hay sesión
+    }
+    
     const userSelect = document.getElementById('logged-user-select');
-    // El botón logout ya no necesita un listener aquí porque se maneja en el HTML
 
     loggedUser = userSelect.value;
 
