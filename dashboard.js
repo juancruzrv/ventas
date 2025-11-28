@@ -22,7 +22,7 @@ const pedidosCount = document.getElementById('pedidos-count');
 const modal = document.getElementById('detail-modal');
 
 // ----------------------------------------------------------------------
-// 3. FUNCIONES DE AUTENTICACIÓN Y SESIÓN (SEGURIDAD REFORZADA)
+// 3. FUNCIONES DE AUTENTICACIÓN Y SESIÓN
 // ----------------------------------------------------------------------
 
 /**
@@ -31,7 +31,7 @@ const modal = document.getElementById('detail-modal');
 async function checkSession() {
     console.log("Verificando sesión...");
     
-    // Oculta por si el CSS o el HTML fallan
+    // Oculta el contenido al inicio
     if (dashboardContent) {
         dashboardContent.style.display = 'none';
     }
@@ -41,7 +41,6 @@ async function checkSession() {
     if (error || !user) {
         console.warn("Sesión no detectada. Redirigiendo a index.html");
         window.location.href = 'index.html'; 
-        // Es crucial retornar false para detener el código de inicialización
         return false;
     }
     
@@ -328,8 +327,9 @@ function closeModal() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // 1. Verificar sesión (CRÍTICO)
+    // 1. Verificar sesión 
     const sessionValid = await checkSession();
+    // Detiene la ejecución si checkSession redirigió al login
     if (!sessionValid) return; 
     
     // 2. Vincular botón de logout
