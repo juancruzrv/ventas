@@ -4,7 +4,6 @@
 
 const SUPABASE_URL = 'https://qkxefpovtejifoophhya.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFreGVmcG92dGVqaWZvb3BoaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTM4NTgsImV4cCI6MjA3OTg2OTg1OH0.hnzWQjicUJtUyfZLpTHipQLVcWCnIQYv1d3u9bNsMvQ'; 
-// Nombre de la tabla de pedidos
 const TABLE_NAME = 'pedidos'; 
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -14,34 +13,46 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ----------------------------------------------------------------------
 
 let currentPedidoId = null;
-let loggedUser = "Usuario A"; // Este valor se actualizará con el email del usuario logueado.
+let loggedUser = "Usuario A";
 let mockData = []; 
 
+const dashboardContent = document.getElementById('dashboard-content'); 
 const pedidosList = document.getElementById('pedidos-list');
 const pedidosCount = document.getElementById('pedidos-count');
 const modal = document.getElementById('detail-modal');
 
 // ----------------------------------------------------------------------
-// 3. FUNCIONES DE AUTENTICACIÓN Y SESIÓN
+// 3. FUNCIONES DE AUTENTICACIÓN Y SESIÓN (SEGURIDAD REFORZADA)
 // ----------------------------------------------------------------------
 
 /**
- * 🔐 Verifica si hay una sesión activa. Si no la hay, redirige al login (index.html).
+ * 🔐 Verifica si hay una sesión activa. Si no la hay, redirige y detiene la carga.
  */
 async function checkSession() {
     console.log("Verificando sesión...");
     
+    // Oculta por si el CSS o el HTML fallan
+    if (dashboardContent) {
+        dashboardContent.style.display = 'none';
+    }
+
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error || !user) {
         console.warn("Sesión no detectada. Redirigiendo a index.html");
         window.location.href = 'index.html'; 
+        // Es crucial retornar false para detener el código de inicialización
         return false;
     }
     
-    // Actualiza loggedUser con el email del usuario (o el ID si no hay email)
     loggedUser = user.email || `Usuario ID: ${user.id}`; 
     console.log(`✅ Sesión activa. Usuario: ${loggedUser}`);
+    
+    // Muestra el dashboard solo si la sesión es válida
+    if (dashboardContent) {
+        dashboardContent.style.display = 'block';
+    }
+    
     return true;
 }
 
@@ -57,7 +68,6 @@ async function handleLogout() {
         console.error("Error al cerrar sesión:", error.message);
     }
 
-    // Redireccionar al login
     window.location.href = 'index.html'; 
 }
 
@@ -65,9 +75,6 @@ async function handleLogout() {
 // 4. LÓGICA DE CARGA DE DATOS (API FETCH)
 // ----------------------------------------------------------------------
 
-/**
- * 📥 Carga los pedidos desde la tabla de Supabase.
- */
 async function fetchPedidos() {
     const fetchUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?select=*`;
 
@@ -88,7 +95,7 @@ async function fetchPedidos() {
         const data = await response.json();
         
         mockData = data; 
-        filterPedidos(); // Renderiza los pedidos
+        filterPedidos(); 
 
     } catch (error) {
         console.error('❌ Error al cargar los pedidos:', error);
@@ -107,9 +114,6 @@ function handleAssignClick() {
     }
 }
 
-/**
- * Asigna el pedido al usuario logueado usando PATCH.
- */
 async function asignarPedido(id, usuario) {
     const pedido = mockData.find(p => p.id === id);
     
@@ -139,13 +143,9 @@ async function asignarPedido(id, usuario) {
     }
 }
 
-/**
- * Actualiza el estado del pedido (Completada/Cancelada) usando PATCH.
- */
 async function actualizarEstado(id, nuevoEstado) {
     const pedido = mockData.find(p => p.id === id);
     
-    // Si el usuario asignado no es el usuario logueado, no puede cerrarlo
     if (pedido.asignado_a !== loggedUser && pedido.asignado_a !== "Usuario A") {
         alert(`❌ No puedes finalizar este pedido. Está asignado a ${pedido.asignado_a}.`);
         return;
@@ -271,24 +271,20 @@ function showDetail(pedidoId) {
     
     assignBtn.textContent = `Asignarme (${loggedUser})`;
 
-    // Lógica para mostrar/ocultar botones según el estado y el usuario
     if (pedido.estado === 'pendiente') {
         
-        // Asignación
         if (pedido.asignado_a === 'N/A' || !pedido.asignado_a) {
             assignBtn.classList.remove('hidden');
             assignBtn.disabled = false;
             completeBtn.classList.add('hidden'); 
             cancelBtn.classList.add('hidden'); 
         } else if (pedido.asignado_a === loggedUser) {
-            // Asignado al usuario actual
             assignBtn.classList.add('hidden');
             completeBtn.classList.remove('hidden');
             cancelBtn.classList.remove('hidden');
             completeBtn.disabled = false;
             cancelBtn.disabled = false;
         } else {
-            // Asignado a otro usuario
             assignBtn.classList.add('hidden'); 
             completeBtn.classList.remove('hidden'); 
             cancelBtn.classList.remove('hidden'); 
@@ -296,13 +292,11 @@ function showDetail(pedidoId) {
             cancelBtn.disabled = true;
         }
     } else {
-        // Si el estado no es pendiente, ocultar botones de acción
         assignBtn.classList.add('hidden');
         completeBtn.classList.add('hidden');
         cancelBtn.classList.add('hidden');
     }
 
-    // Llenar el Log de Conversación (logs)
     const logContainer = document.getElementById('detail-conversation-log');
     logContainer.innerHTML = '';
     
@@ -334,11 +328,11 @@ function closeModal() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // 1. Verificar sesión (CRÍTICO para la seguridad)
+    // 1. Verificar sesión (CRÍTICO)
     const sessionValid = await checkSession();
     if (!sessionValid) return; 
     
-    // 2. Vincular botón de logout (Usamos EventListener para mayor robustez)
+    // 2. Vincular botón de logout
     const logoutButton = document.getElementById('logout-btn');
     if (logoutButton) {
         logoutButton.addEventListener('click', handleLogout);
