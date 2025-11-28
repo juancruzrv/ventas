@@ -3,8 +3,7 @@
 // ----------------------------------------------------------------------
 // 1. CONFIGURACIÓN E INICIALIZACIÓN DEL CLIENTE SUPABASE
 // ----------------------------------------------------------------------
-
-// *** TUS CREDENCIALES DE SUPABASE ***
+// TUS CREDENCIALES
 const SUPABASE_URL = 'https://qkxefpovtejifoophhya.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFreGVmcG92dGVqaWZvb3BoaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTM4NTgsImV4cCI6MjA3OTg2OTg1OH0.hnzWQjicUJtUyfZLpTHipQLVcWCnIQYv1d3u9bNsMvQ'; 
 
@@ -15,6 +14,7 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // 2. REFERENCIAS Y MANEJO DEL DOM
 // ----------------------------------------------------------------------
 
+const dashboardContent = document.getElementById('dashboard-content');
 const logoutBtn = document.getElementById('logout-btn');
 const pedidosList = document.getElementById('pedidos-list');
 const pedidosCount = document.getElementById('pedidos-count');
@@ -22,7 +22,7 @@ const conversacionList = document.getElementById('conversacion-list');
 const messageElement = document.getElementById('message');
 
 // ----------------------------------------------------------------------
-// 3. VERIFICACIÓN DE AUTENTICACIÓN
+// 3. VERIFICACIÓN DE AUTENTICACIÓN (Seguridad)
 // ----------------------------------------------------------------------
 
 /**
@@ -30,16 +30,18 @@ const messageElement = document.getElementById('message');
  */
 async function checkSession() {
     messageElement.textContent = 'Verificando sesión...';
-    messageElement.style.color = '#333';
     
     // Obtener el usuario autenticado
     const { data: { user } } = await supabaseClient.auth.getUser();
 
     if (!user) {
-        // Si no hay usuario, redirigir al login
+        // Redirige al login si no hay usuario
         window.location.href = 'index.html';
     } else {
-        // Usuario autenticado, cargar los datos del Dashboard
+        // Muestra el contenido SÓLO si el usuario está autenticado
+        dashboardContent.style.display = 'block'; 
+        
+        // Usuario autenticado, cargar los datos
         loadDashboardData();
     }
 }
@@ -48,36 +50,31 @@ async function checkSession() {
 // 4. CARGA DE DATOS DEL DASHBOARD
 // ----------------------------------------------------------------------
 
-/**
- * Carga los datos de las tablas 'pedidos' y 'conversaciones'.
- */
 async function loadDashboardData() {
     messageElement.textContent = 'Cargando datos...';
-    messageElement.style.color = '#00a896'; // Color de carga
+    messageElement.style.color = '#00a896'; 
 
-    // A. Cargar los últimos pedidos (con JOINS implícitos a la tabla 'clientes')
+    // A. Cargar los últimos pedidos
     const { data: pedidos, error: pedidosError } = await supabaseClient
         .from('pedidos')
         .select(`
-            id, 
             producto_servicio, 
             monto, 
             estado,
             fecha_pedido,
-            clientes (nombre, numero_whatsapp) // Traemos info del cliente relacionado
+            clientes (nombre, numero_whatsapp)
         `)
         .order('fecha_pedido', { ascending: false })
         .limit(10); 
 
     if (pedidosError) {
+        // Manejo de error (ej. RLS incorrecto)
         console.error('Error al cargar pedidos:', pedidosError);
-        messageElement.textContent = 'Error al cargar los pedidos. Revisa las políticas RLS.';
-        messageElement.style.color = '#e74c3c';
+        messageElement.textContent = 'Error al cargar los pedidos. (Revise RLS)';
         pedidosList.innerHTML = '<li>Error de conexión o permisos.</li>';
     } else {
-        // Mostrar conteo y lista
         pedidosCount.textContent = pedidos.length; 
-        pedidosList.innerHTML = ''; // Limpiar la lista
+        pedidosList.innerHTML = ''; 
         
         pedidos.forEach(p => {
             const listItem = document.createElement('li');
@@ -85,16 +82,14 @@ async function loadDashboardData() {
             const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
             
             listItem.innerHTML = `
-                **[${p.estado}]** ${p.producto_servicio} (${p.monto}€)<br>
+                <span style="font-weight: bold;">[${p.estado}]</span> ${p.producto_servicio} (${p.monto}€)<br>
                 <small>Cliente: ${clientName} - ${date}</small>
             `;
             pedidosList.appendChild(listItem);
         });
         
         messageElement.textContent = 'Datos de pedidos cargados.';
-        messageElement.style.color = '#333';
     }
-
 
     // B. Cargar la actividad reciente de conversaciones (logs)
     const { data: logs, error: logsError } = await supabaseClient
@@ -102,20 +97,15 @@ async function loadDashboardData() {
         .select(`
             es_entrada, 
             contenido, 
-            chatbot_accion,
-            created_at,
-            clientes (numero_whatsapp)
+            chatbot_accion
         `)
         .order('created_at', { ascending: false })
         .limit(5);
 
-    if (logsError) {
-        console.error('Error al cargar logs:', logsError);
-        conversacionList.innerHTML = '<li>Error al cargar los logs.</li>';
-    } else {
+    if (!logsError) {
         conversacionList.innerHTML = '';
         logs.forEach(log => {
-            const direction = log.es_entrada ? 'Cliente -> Bot' : 'Bot -> Cliente';
+            const direction = log.es_entrada ? 'Cliente' : 'Bot';
             const style = log.es_entrada ? 'font-weight: bold; color: #3498db;' : 'color: #f39c12;';
 
             const listItem = document.createElement('li');
@@ -127,8 +117,8 @@ async function loadDashboardData() {
         });
     }
     
-    // Mensaje final de éxito
-    messageElement.textContent = 'Dashboard actualizado con éxito.';
+    // Mensaje final
+    messageElement.textContent = 'Dashboard actualizado.';
     messageElement.style.color = '#28a745';
 }
 
@@ -136,30 +126,19 @@ async function loadDashboardData() {
 // 5. CIERRE DE SESIÓN
 // ----------------------------------------------------------------------
 
-/**
- * Maneja el cierre de sesión y redirige al login.
- */
 async function handleLogout() {
     messageElement.textContent = 'Cerrando sesión...';
     messageElement.style.color = '#e74c3c';
     
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-        console.error('Error al cerrar sesión:', error.message);
-        messageElement.textContent = `Error al cerrar sesión: ${error.message}`;
-    } else {
-        // Redirigir al login
-        window.location.href = 'index.html';
-    }
+    await supabaseClient.auth.signOut();
+    
+    // Redirigir al login
+    window.location.href = 'index.html';
 }
 
 // ----------------------------------------------------------------------
 // 6. LISTENERS E INICIALIZACIÓN
 // ----------------------------------------------------------------------
 
-// Listener para el botón de cerrar sesión
 logoutBtn.addEventListener('click', handleLogout);
-
-// Iniciar la verificación de sesión al cargar la página
 checkSession();
