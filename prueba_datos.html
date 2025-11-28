@@ -31,10 +31,18 @@
                 <h3>🛒 Pedidos</h3>
                 
                 <div id="filter-container">
-                    <button class="filter-btn active" data-filter="todos" onclick="filterPedidos('todos', this)">Todos</button>
-                    <button class="filter-btn" data-filter="pendiente" onclick="filterPedidos('pendiente', this)">Pendientes</button>
-                    <button class="filter-btn" data-filter="completada" onclick="filterPedidos('completada', this)">Completados</button>
-                    <button class="filter-btn" data-filter="cancelada" onclick="filterPedidos('cancelada', this)">Cancelados</button>
+                    
+                    <label class="filter-checkbox-label">
+                        <input type="checkbox" class="filter-checkbox" value="pendiente" checked> Pendientes
+                    </label>
+
+                    <label class="filter-checkbox-label">
+                        <input type="checkbox" class="filter-checkbox" value="completada" checked> Completadas
+                    </label>
+                    
+                    <label class="filter-checkbox-label">
+                        <input type="checkbox" class="filter-checkbox" value="cancelada" checked> Canceladas
+                    </label>
                 </div>
 
                 <div id="pedidos-list">
@@ -142,7 +150,7 @@
                 const item = document.createElement('div');
                 item.className = 'pedido-item';
                 
-                // 1. Asignar clase de estado para el borde CSS
+                // 1. Asignar clase de estado para el borde y el neón
                 const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; 
                 item.classList.add(estadoClass);
 
@@ -170,19 +178,28 @@
         }
 
         /**
-         * Función principal de filtrado.
+         * Lógica principal de filtrado MULTI-SELECCIÓN.
          */
-        function filterPedidos(filterValue, btn) {
-            // Manejar la clase 'active' de los botones
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        function filterPedidos() {
+            const checkboxes = document.querySelectorAll('.filter-checkbox');
+            
+            // 1. Recoger los estados seleccionados (en minúsculas)
+            const activeFilters = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value); // 'pendiente', 'completada', 'cancelada'
+            
+            let filteredData;
 
-            let filteredData = mockData;
-
-            if (filterValue !== 'todos') {
-                // Normaliza el valor del filtro a 'Pendiente', 'Completada', 'Cancelada'
-                const normalizedFilter = filterValue.charAt(0).toUpperCase() + filterValue.slice(1);
-                filteredData = mockData.filter(p => p.estado === normalizedFilter);
+            if (activeFilters.length === 0) {
+                // Si no hay filtros seleccionados, mostramos todos los pedidos.
+                filteredData = mockData; 
+            } else {
+                // 2. Filtrar los datos: El pedido debe COINCIDIR con CUALQUIER filtro activo.
+                filteredData = mockData.filter(p => {
+                    // Convertir el estado del pedido a minúsculas para la comparación
+                    const normalizedState = p.estado.toLowerCase().replace(/á/g, 'a');
+                    return activeFilters.includes(normalizedState);
+                });
             }
             
             renderPedidos(filteredData);
@@ -253,13 +270,21 @@
         }
 
         // ----------------------------------------------------------------------
-        // 4. INICIALIZACIÓN
+        // 4. INICIALIZACIÓN Y LISTENERS
         // ----------------------------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', () => {
             // Cargar todos los pedidos al inicio
             renderPedidos(mockData); 
             
+            // Asignar el listener a todos los checkboxes
+            document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', filterPedidos);
+            });
+
+            // Aplicar el filtro inicial (muestra todos, ya que todos están marcados por defecto en el HTML)
+            filterPedidos();
+
             // Permitir cerrar el modal con la tecla ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === "Escape") {
