@@ -133,7 +133,8 @@ button:hover {
 /* 3. Estilos del Dashboard (dashboard.html) */
 /* ======================================= */
 #dashboard-content {
-    display: none; 
+    /* En la versión final se controlará con JS */
+    /* display: none; */ 
 }
 .header { 
     display: flex; 
@@ -152,7 +153,7 @@ button:hover {
     background: #1e1e1e; 
     padding: 25px; 
     border-radius: 8px; 
-    /* Bordes de color eliminados para contenedores principales */
+    /* Bordes y sombras eliminados para contenedores principales (Diseño Minimalista) */
     box-shadow: none; 
 }
 #logout-btn { 
@@ -199,28 +200,59 @@ button:hover {
     background: #252525;
     padding: 15px;
     border-radius: 6px;
-    border-left: 5px solid transparent; /* Base para el borde de estado */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    border-left: 5px solid transparent; /* Base para el borde sólido de estado */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Sombra sutil general */
     cursor: pointer;
     transition: all 0.2s ease;
+    position: relative; 
 }
 
 /* Efecto hover */
 .pedido-item:hover {
-    box-shadow: 0 0 10px rgba(197, 1, 226, 0.4);
     transform: translateY(-2px);
 }
 
-/* Colores de Borde basados en el Estado (Semaforo Neón) */
+/* Colores de Borde y Efecto Neón basados en el Estado (Semaforo Neón) */
+
+/* PENDIENTE */
 .estado-pendiente {
-    border-left-color: #f39c12; /* Naranja/Amarillo neón */
+    border-left-color: #f39c12; /* Borde sólido naranja */
+    box-shadow: 
+        0 0 5px rgba(0, 0, 0, 0.5), /* Sombra general suave */
+        inset 5px 0 15px rgba(243, 156, 18, 0.7); /* Sombra neón interior izquierda */
 }
+.estado-pendiente:hover {
+    box-shadow: 
+        0 0 15px rgba(0, 0, 0, 0.7), /* Sombra general más fuerte en hover */
+        inset 5px 0 25px rgba(243, 156, 18, 1); /* Sombra neón interior izquierda más intensa */
+}
+
+/* COMPLETADA */
 .estado-completada {
-    border-left-color: #2ecc71; /* Verde neón */
+    border-left-color: #2ecc71; /* Borde sólido verde */
+    box-shadow: 
+        0 0 5px rgba(0, 0, 0, 0.5),
+        inset 5px 0 15px rgba(46, 204, 113, 0.7); /* Sombra neón interior izquierda */
 }
+.estado-completada:hover {
+    box-shadow: 
+        0 0 15px rgba(0, 0, 0, 0.7),
+        inset 5px 0 25px rgba(46, 204, 113, 1); /* Sombra neón interior izquierda más intensa */
+}
+
+/* CANCELADA */
 .estado-cancelada {
-    border-left-color: #e74c3c; /* Rojo neón */
+    border-left-color: #e74c3c; /* Borde sólido rojo */
+    box-shadow: 
+        0 0 5px rgba(0, 0, 0, 0.5),
+        inset 5px 0 15px rgba(231, 76, 60, 0.7); /* Sombra neón interior izquierda */
 }
+.estado-cancelada:hover {
+    box-shadow: 
+        0 0 15px rgba(0, 0, 0, 0.7),
+        inset 5px 0 25px rgba(231, 76, 60, 1); /* Sombra neón interior izquierda más intensa */
+}
+
 
 /* Estilos para la barra de Filtros */
 #filter-container {
