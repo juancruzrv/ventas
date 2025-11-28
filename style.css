@@ -186,7 +186,71 @@ button:hover {
 }
 
 /* ======================================= */
-/* 4. Media Queries (Responsiveness) */
+/* 4. Estilos de Gestión y Filtros de Pedidos */
+/* ======================================= */
+
+/* Contenedor principal de los pedidos */
+#pedidos-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Mostrar pedidos en cuadrícula adaptable */
+    gap: 15px;
+    padding: 0;
+    list-style: none; /* Asegurar que no haya viñetas */
+}
+
+/* Estilo base para cada contenedor de pedido */
+.pedido-item {
+    background: #252525;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 5px solid transparent; /* Base para el borde de estado */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Efecto hover */
+.pedido-item:hover {
+    box-shadow: 0 0 10px rgba(197, 1, 226, 0.4);
+}
+
+/* Colores de Borde basados en el Estado (Semaforo Neón) */
+.estado-pendiente {
+    border-left-color: #f39c12; /* Naranja/Amarillo neón */
+}
+.estado-completada {
+    border-left-color: #2ecc71; /* Verde neón */
+}
+.estado-cancelada {
+    border-left-color: #e74c3c; /* Rojo neón */
+}
+
+/* Estilos para la barra de Filtros */
+#filter-container {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.filter-btn {
+    background-color: #333;
+    color: #e0e0e0;
+    padding: 8px 15px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.filter-btn.active, .filter-btn:hover {
+    background-color: #c501e2;
+    color: white;
+    border-color: #e327ff;
+    box-shadow: 0 0 5px rgba(197, 1, 226, 0.7);
+}
+
+
+/* ======================================= */
+/* 5. Media Queries (Responsiveness) */
 /* ======================================= */
 @media (max-width: 768px) {
     .login-container {
