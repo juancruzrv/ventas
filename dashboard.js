@@ -12,6 +12,27 @@ const TABLE_NAME = 'pedidos';
 // Inicialización del cliente de Supabase (CRÍTICO para Auth)
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ----------------------------------------------------------------------
+// 🚨 FUNCIÓN DE CIERRE DE SESIÓN AISLADA (GARANTÍA DE EJECUCIÓN)
+// ----------------------------------------------------------------------
+/**
+ * Destruye la sesión de Supabase y luego redirige a index.html.
+ */
+async function handleLogout() {
+    console.log("Cerrando sesión de Supabase (Ejecutando SignOut)...");
+    
+    // 1. Destruir la sesión en Supabase y esperar la respuesta
+    const { error } = await supabase.auth.signOut(); 
+
+    if (error) {
+        console.error("Error al cerrar sesión:", error.message);
+    }
+
+    // 2. Redireccionar al index
+    window.location.href = 'index.html'; 
+}
+// ----------------------------------------------------------------------
+
 let currentPedidoId = null;
 let loggedUser = "Usuario A";
 let mockData = []; // Contendrá la data cargada de Supabase
@@ -340,28 +361,6 @@ function showDetail(pedidoId) {
 
 function closeModal() {
     modal.classList.remove('visible');
-}
-
-// ----------------------------------------------------------------------
-// 6. FUNCIONALIDAD DE CIERRE DE SESIÓN (FINAL)
-// ----------------------------------------------------------------------
-
-/**
- * Destruye la sesión de Supabase y luego redirige a index.html.
- */
-async function handleLogout() {
-    console.log("Cerrando sesión de Supabase...");
-    
-    // 1. Destruir la sesión en Supabase
-    const { error } = await supabase.auth.signOut(); 
-
-    if (error) {
-        console.error("Error al cerrar sesión:", error.message);
-        // Si hay un error al cerrar, aún intentamos la redirección
-    }
-
-    // 2. Redireccionar al index
-    window.location.href = 'index.html'; 
 }
 
 
