@@ -1,5 +1,5 @@
 // =================================================================
-// dashboard.js - LÓGICA CENTRAL Y DE DASHBOARD (CLAVES INSERTADAS)
+// dashboard.js - LÓGICA CENTRAL Y DE DASHBOARD (VERSION ORIGINAL)
 // =================================================================
 
 // 🔑 CLAVES DE SUPABASE INSERTADAS:
@@ -10,7 +10,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
  * Inicializa el cliente de Supabase y lo hace accesible globalmente.
  */
 function initializeSupabase() {
-    // No necesita verificación aquí, ya que las claves se insertaron
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     return window.supabase;
 }
@@ -24,7 +23,7 @@ const supabaseClient = initializeSupabase();
 // LÓGICA ESPECÍFICA DEL DASHBOARD (solo si estamos en dashboard.html)
 // =================================================================
 
-// Solo ejecuta la lógica del dashboard si los elementos existen (para evitar errores en test-data.html)
+// Solo ejecuta la lógica del dashboard si los elementos existen
 if (document.getElementById('chat-data')) { 
     
     // Función principal para cargar y renderizar las interacciones
@@ -51,7 +50,7 @@ if (document.getElementById('chat-data')) {
         }
 
         if (interacciones.length === 0) {
-            summaryElement.innerHTML = '<p>No hay interacciones registradas. ¡Usa la página de prueba para insertar algunas!</p>';
+            summaryElement.innerHTML = '<p>No hay interacciones registradas.</p>';
         }
 
         // 1. Renderizar la lista
@@ -78,7 +77,7 @@ if (document.getElementById('chat-data')) {
             return acc;
         }, {});
         
-        // Si tu dashboard.html tiene IDs específicos para los contadores (orders-count, sales-count, recom-count):
+        // Si tu dashboard.html tiene IDs específicos para los contadores:
         if (document.getElementById('orders-count')) {
             document.getElementById('orders-count').textContent = counts['pedido'] || 0;
             document.getElementById('sales-count').textContent = counts['venta'] || 0;
