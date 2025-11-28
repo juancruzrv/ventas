@@ -6,6 +6,78 @@
     <title>Dashboard - Gestión de Pedidos</title>
     
     <link rel="stylesheet" href="style.css"> 
+    
+    <style>
+        /* Estilos básicos del modal (deberían ir en style.css) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.visible {
+            display: flex;
+        }
+        .modal-content {
+            background: #2c2c2c;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid #c501e2;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+        .action-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .assign-style { background-color: #f39c12; color: #1f1f1f; }
+        .complete-style { background-color: #2ecc71; color: white; }
+        .cancel-style { background-color: #e74c3c; color: white; }
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .log-item {
+            background-color: #383838;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+        .log-cliente { color: #00fff2; font-weight: bold; }
+        .log-bot { color: #c501e2; font-weight: bold; }
+        .hidden { display: none !important; }
+
+    </style>
 </head>
 <body>
 
@@ -13,16 +85,40 @@
     
         <div class="header">
             <h1>📊 Panel de Control del Chatbot</h1>
-            <button id="logout-btn">Cerrar Sesión</button> 
+            <button id="logout-btn">Cerrar Sesión</button>
         </div>
         
         <div class="card">
             <h3>📈 Métricas Clave</h3>
             <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #00fff2;">0</span></p>
         </div>
-        
+
+        <div class="data-grid">
+            
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3>🛒 Pedidos</h3>
+                
+                <div id="filter-container">
+                    
+                    <input type="checkbox" id="filter-pendiente" class="filter-checkbox" value="pendiente" checked> 
+                    <label for="filter-pendiente" class="filter-checkbox-label">Pendientes</label>
+
+                    <input type="checkbox" id="filter-completada" class="filter-checkbox" value="completada" checked> 
+                    <label for="filter-completada" class="filter-checkbox-label">Completadas</label>
+                    
+                    <input type="checkbox" id="filter-cancelada" class="filter-checkbox" value="cancelada" checked> 
+                    <label for="filter-cancelada" class="filter-checkbox-label">Canceladas</label>
+                </div>
+
+                <div id="pedidos-list">
+                    <p style="grid-column: 1 / -1; text-align: center; color: #999;">Cargando pedidos...</p>
+                </div>
+            </div>
+            
         </div>
-    
+        
+    </div> 
+
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-content">
             
