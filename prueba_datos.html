@@ -3,91 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - VISTA PREVIA (MODAL DE DETALLE)</title>
+    <title>Dashboard - VISTA PREVIA (FILTROS Y CONTENEDORES)</title>
     
     <link rel="stylesheet" href="style.css"> 
 
     <style>
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); /* Fondo semi-transparente oscuro */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease;
-        }
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            background-color: #1e1e1e; /* Color de tarjeta oscuro */
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 800px;
-            box-shadow: 0 0 40px rgba(197, 1, 226, 0.7); /* Sombra neón */
-            border: 2px solid #c501e2;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-content h3 {
-            color: #00fff2; /* Título secundario neón */
-            margin-top: 15px;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #c501e2;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: #c501e2;
-            font-size: 24px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .log-item {
-            padding: 8px 0;
-            border-bottom: 1px dotted #333;
-        }
-        .log-item span {
-            display: block;
-            font-size: 0.9em;
-            margin-top: 5px;
-            color: #e0e0e0;
-        }
-        .log-cliente {
-            font-weight: bold;
-            color: #00fff2;
-        }
-        .log-bot {
-            font-weight: bold;
-            color: #c501e2;
-        }
-        /* Estilo para hacer clickeable cada item de la lista de pedidos */
-        #pedidos-list li {
-            cursor: pointer;
-            transition: background-color 0.2s;
-            border-left: 5px solid transparent;
-            padding-left: 10px; /* Espacio para el borde de hover */
-        }
-        #pedidos-list li:hover {
-            background-color: #2c2c2c;
-            border-left-color: #c501e2;
-        }
-
+        /* ... (Dejar aquí todos los estilos del Modal que ya tenías) ... */
+        .modal-overlay { /* ... */ }
+        .modal-overlay.visible { /* ... */ }
+        /* ... (TODOS los estilos del Modal van aquí para la prueba) ... */
     </style>
     </head>
 <body>
@@ -112,9 +36,16 @@
             
             <div class="card" style="grid-column: 1 / -1;">
                 <h3>🛒 Pedidos</h3>
-                <ul id="pedidos-list">
-                    <li>Cargando pedidos...</li>
-                </ul>
+                
+                <div id="filter-container">
+                    <button class="filter-btn active" data-filter="todos" onclick="filterPedidos('todos', this)">Todos</button>
+                    <button class="filter-btn" data-filter="pendiente" onclick="filterPedidos('pendiente', this)">Pendientes</button>
+                    <button class="filter-btn" data-filter="completada" onclick="filterPedidos('completada', this)">Completados</button>
+                    <button class="filter-btn" data-filter="cancelada" onclick="filterPedidos('cancelada', this)">Cancelados</button>
+                </div>
+
+                <div id="pedidos-list">
+                    </div>
             </div>
             
         </div>
@@ -143,17 +74,16 @@
 
             <h3 style="color: #c501e2;">Transcripción de la Conversación</h3>
             <div id="detail-conversation-log">
-                </div>
+            </div>
 
         </div>
     </div>
 
     <script>
         // ----------------------------------------------------------------------
-        // 1. DATOS SIMULADOS (JSON que contendrían los Logs anidados)
+        // 1. DATOS SIMULADOS (JSON)
         // ----------------------------------------------------------------------
 
-        // A. SIMULACIÓN DE PEDIDOS (Ahora con un campo de logs anidado para la prueba)
         const mockData = [
             {
                 id: 105,
@@ -162,12 +92,7 @@
                 estado: "Pendiente",
                 fecha_pedido: "2025-11-28T09:30:00Z",
                 clientes: { nombre: "Andrea García", numero_whatsapp: "+5491155551234" },
-                logs: [ // Logs anidados (simulando una consulta JOIN)
-                    { es_entrada: true, contenido: "Sí, por favor, me envías el Oud Ispahan. ¿Cómo pago?", chatbot_accion: "Confirmación de Compra"},
-                    { es_entrada: false, contenido: "¡Excelente! Confirmamos que Oud Ispahan está en STOCK. ¿Deseas proceder con la compra por 120€?", chatbot_accion: "Confirmación de Stock"},
-                    { es_entrada: true, contenido: "Estoy buscando el perfume Oud Ispahan. ¿Lo tienen?", chatbot_accion: "Búsqueda de Producto"},
-                    { es_entrada: false, contenido: "Hola Andrea! Soy el Chatbot de Perfumes Árabes. ¿En qué puedo ayudarte hoy?", chatbot_accion: "Inicio de Conversación"}
-                ]
+                logs: [{ es_entrada: true, contenido: "Sí, por favor, me envías el Oud Ispahan. ¿Cómo pago?", chatbot_accion: "Confirmación de Compra"}, { es_entrada: false, contenido: "¡Excelente! Confirmamos que Oud Ispahan está en STOCK. ¿Deseas proceder con la compra por 120€?", chatbot_accion: "Confirmación de Stock"}, { es_entrada: true, contenido: "Estoy buscando el perfume Oud Ispahan. ¿Lo tienen?", chatbot_accion: "Búsqueda de Producto"}, { es_entrada: false, contenido: "Hola Andrea! Soy el Chatbot de Perfumes Árabes. ¿En qué puedo ayudarte hoy?", chatbot_accion: "Inicio de Conversación"}]
             },
             {
                 id: 104,
@@ -176,30 +101,115 @@
                 estado: "Completada",
                 fecha_pedido: "2025-11-27T18:45:00Z",
                 clientes: { nombre: "Ricardo Perez", numero_whatsapp: "+5491166665678" },
-                logs: [
-                    { es_entrada: true, contenido: "Recibido, muchas gracias. Ya lo probé y me encantó.", chatbot_accion: "Feedback Positivo"},
-                    { es_entrada: false, contenido: "Pedido enviado. El número de tracking es: T4G56. Que lo disfrutes!", chatbot_accion: "Pedido Enviado"},
-                    { es_entrada: true, contenido: "Quiero el Shaghaf Oud, ya lo compré antes.", chatbot_accion: "Recompra Directa"}
-                ]
+                logs: [{ es_entrada: true, contenido: "Recibido, muchas gracias. Ya lo probé y me encantó.", chatbot_accion: "Feedback Positivo"}, { es_entrada: false, contenido: "Pedido enviado. El número de tracking es: T4G56. Que lo disfrutes!", chatbot_accion: "Pedido Enviado"}, { es_entrada: true, contenido: "Quiero el Shaghaf Oud, ya lo compré antes.", chatbot_accion: "Recompra Directa"}]
+            },
+            {
+                id: 103,
+                producto_nombre: "Yatagan",
+                monto: 70.00,
+                estado: "Cancelada",
+                fecha_pedido: "2025-11-27T10:15:00Z",
+                clientes: { nombre: "Javier López", numero_whatsapp: "+5491177779012" },
+                logs: [{ es_entrada: true, contenido: "Quiero el perfume Yatagan, sino está no me interesa.", chatbot_accion: "Selección Única"}, { es_entrada: false, contenido: "Lo sentimos, Yatagan está agotado. ¿Desea ver otras opciones?", chatbot_accion: "Notificar Agotado"}]
+            },
+            {
+                id: 102,
+                producto_nombre: "Oud Wood 50ml",
+                monto: 250.00,
+                estado: "Pendiente",
+                fecha_pedido: "2025-11-28T12:00:00Z",
+                clientes: { nombre: "Laura Giménez", numero_whatsapp: "+5491188883456" },
+                logs: [{ es_entrada: true, contenido: "El Oud Wood de 50ml. Estoy esperando el link de pago.", chatbot_accion: "Esperando Pago"}, { es_entrada: false, contenido: "Confirmo stock de Oud Wood. Costo 250€. En un momento le enviamos el link.", chatbot_accion: "Confirmación de Stock"}]
             }
-            // Los demás pedidos se cargan aquí si existieran
         ];
         
         // ----------------------------------------------------------------------
-        // 2. FUNCIONALIDAD DEL MODAL
+        // 2. LÓGICA DE FILTRADO Y RENDERIZADO
         // ----------------------------------------------------------------------
         
+        const pedidosList = document.getElementById('pedidos-list');
+        const pedidosCount = document.getElementById('pedidos-count');
         const modal = document.getElementById('detail-modal');
 
         /**
-         * Muestra el modal con los datos del pedido seleccionado.
-         * @param {number} pedidoId - ID del pedido a mostrar.
+         * Renderiza los pedidos en la vista principal (Pedidos y Filtros)
+         * @param {Array} data - Array de pedidos a renderizar.
          */
+        function renderPedidos(data) {
+            pedidosList.innerHTML = ''; 
+            pedidosCount.textContent = data.length;
+
+            data.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'pedido-item';
+                
+                // 1. Asignar clase de estado para el borde CSS
+                const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; // ej: estado-completada
+                item.classList.add(estadoClass);
+
+                // 2. Hacer el contenedor clickeable
+                item.setAttribute('onclick', `showDetail(${p.id})`);
+
+                const clientName = p.clientes.nombre || `(Núm: ${p.clientes.numero_whatsapp})`;
+                const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
+                
+                // 3. Contenido interno
+                item.innerHTML = `
+                    <p style="font-size: 1.1em; margin: 0 0 5px 0; color: #c501e2;">
+                        ${p.producto_nombre} 
+                    </p>
+                    <p style="margin: 0 0 5px 0;">
+                        Estado: <strong style="color: ${getEstadoColor(p.estado)};">${p.estado}</strong>
+                    </p>
+                    <p style="margin: 0;">
+                        <small>Cliente: ${clientName}</small>
+                    </p>
+                    <small style="color: #999;">Pedido #${p.id} | ${date}</small>
+                `;
+                pedidosList.appendChild(item);
+            });
+        }
+
+        /**
+         * Función principal de filtrado
+         * @param {string} filterValue - 'todos', 'pendiente', 'completada', 'cancelada'
+         * @param {HTMLElement} btn - El botón que fue clickeado
+         */
+        function filterPedidos(filterValue, btn) {
+            // Manejar la clase 'active' de los botones
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            let filteredData = mockData;
+
+            if (filterValue !== 'todos') {
+                // Filtra basándose en el valor del estado del pedido
+                const normalizedFilter = filterValue.charAt(0).toUpperCase() + filterValue.slice(1);
+                filteredData = mockData.filter(p => p.estado === normalizedFilter);
+            }
+            
+            renderPedidos(filteredData);
+        }
+
+        /**
+         * Ayudante para obtener el color de texto según el estado (para el interior del item)
+         * @param {string} estado 
+         */
+        function getEstadoColor(estado) {
+            if (estado === 'Pendiente') return '#f39c12';
+            if (estado === 'Completada') return '#2ecc71';
+            if (estado === 'Cancelada') return '#e74c3c';
+            return '#e0e0e0';
+        }
+
+        // ----------------------------------------------------------------------
+        // 3. FUNCIONALIDAD DEL MODAL (Sin cambios funcionales)
+        // ----------------------------------------------------------------------
+        
         function showDetail(pedidoId) {
             const pedido = mockData.find(p => p.id === pedidoId);
             if (!pedido) return;
 
-            // 1. Llenar los campos de Detalle
             document.getElementById('modal-title').textContent = `Detalle del Pedido #${pedido.id}`;
             document.getElementById('detail-product').textContent = pedido.producto_nombre;
             document.getElementById('detail-price').textContent = `${pedido.monto.toFixed(2)}€`;
@@ -207,11 +217,9 @@
             document.getElementById('detail-client-name').textContent = pedido.clientes.nombre;
             document.getElementById('detail-client-id').textContent = pedido.clientes.numero_whatsapp;
 
-            // 2. Llenar el Log de Conversación
             const logContainer = document.getElementById('detail-conversation-log');
-            logContainer.innerHTML = ''; // Limpiar logs anteriores
+            logContainer.innerHTML = '';
             
-            // Revertir el orden para que la conversación empiece desde el inicio
             const sortedLogs = [...pedido.logs].reverse(); 
 
             sortedLogs.forEach(log => {
@@ -231,59 +239,27 @@
                 logContainer.appendChild(logItem);
             });
             
-            // 3. Mostrar el Modal
             modal.classList.add('visible');
         }
 
-        /**
-         * Oculta el modal.
-         */
         function closeModal() {
             modal.classList.remove('visible');
         }
 
         // ----------------------------------------------------------------------
-        // 3. LÓGICA DE CARGA INICIAL
+        // 4. INICIALIZACIÓN
         // ----------------------------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', () => {
-            const pedidosList = document.getElementById('pedidos-list');
-            const pedidosCount = document.getElementById('pedidos-count');
+            // Cargar todos los pedidos al inicio
+            renderPedidos(mockData); 
             
-            // --- Carga de Pedidos ---
-            pedidosCount.textContent = mockData.length; 
-            pedidosList.innerHTML = ''; 
-            
-            mockData.forEach(p => {
-                const listItem = document.createElement('li');
-                const clientName = p.clientes.nombre || `(Núm: ${p.clientes.numero_whatsapp})`;
-                const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
-                
-                let estadoColor = 'color: #e0e0e0;'; 
-                if (p.estado === 'Pendiente') estadoColor = 'color: #f39c12;'; 
-                else if (p.estado === 'Completada') estadoColor = 'color: #2ecc71;'; 
-                else if (p.estado === 'Cancelada') estadoColor = 'color: #e74c3c;'; 
-
-                // CONVERTIMOS EL ELEMENTO EN CLICKEABLE
-                listItem.setAttribute('onclick', `showDetail(${p.id})`);
-                
-                listItem.innerHTML = `
-                    <span style="font-weight: 700; ${estadoColor}">[${p.estado}]</span> 
-                    <span style="color: #c501e2; font-weight: 700;">${p.producto_nombre}</span> 
-                    (${p.monto}€)<br>
-                    <small>Cliente: ${clientName} - ID: ${p.clientes.numero_whatsapp} (${date})</small>
-                `;
-                pedidosList.appendChild(listItem);
-            });
-            
-            // Permitir cerrar el modal con la tecla ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === "Escape") {
                     closeModal();
                 }
             });
         });
-
     </script>
 </body>
 </html>
