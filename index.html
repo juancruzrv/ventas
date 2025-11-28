@@ -4,68 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso al Dashboard</title>
-
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            background-color: #f0f2f5; 
-            margin: 0; 
-        }
-        .login-container { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-            width: 320px; 
-        }
-        h2 { 
-            text-align: center; 
-            color: #1877f2; 
-            margin-bottom: 25px;
-        }
-        label { 
-            display: block; 
-            margin-bottom: 5px; 
-            color: #333; 
-            font-weight: 600;
-        }
-        input[type="email"], input[type="password"] { 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 20px; 
-            border: 1px solid #ddd; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            font-size: 16px;
-        }
-        button { 
-            background-color: #1877f2; 
-            color: white; 
-            padding: 15px 20px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            width: 100%; 
-            font-size: 17px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        button:hover { 
-            background-color: #166fe5; 
-        }
-        #message { 
-            color: #d9534f; 
-            text-align: center; 
-            margin-top: 15px; 
-            font-weight: bold;
-        }
-    </style>
+    
+    <link rel="stylesheet" href="style.css"> 
 </head>
-<body>
+<body class="login-page">
     
     <div class="login-container">
         <h2>🔒 Acceso al Dashboard</h2>
@@ -97,7 +39,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script src="app.js"></script>
 </body>
 </html>
