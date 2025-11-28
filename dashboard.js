@@ -1,144 +1,418 @@
-// dashboard.js
+// ======================================================================
+// 1. CONFIGURACIÓN DE SUPABASE
+// ======================================================================
 
-// ----------------------------------------------------------------------
-// 1. CONFIGURACIÓN E INICIALIZACIÓN DEL CLIENTE SUPABASE
-// ----------------------------------------------------------------------
-// TUS CREDENCIALES
+// URL de la API de Supabase proporcionada
 const SUPABASE_URL = 'https://qkxefpovtejifoophhya.supabase.co'; 
+// Anon Key proporcionada (clave pública para lectura)
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFreGVmcG92dGVqaWZvb3BoaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTM4NTgsImV4cCI6MjA3OTg2OTg1OH0.hnzWQjicUJtUyfZLpTHipQLVcWCnIQYv1d3u9bNsMvQ'; 
+// Nombre de la tabla de pedidos
+const TABLE_NAME = 'pedidos'; 
 
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentPedidoId = null;
+let loggedUser = "Usuario A";
+let mockData = []; // Ahora contendrá la data cargada de Supabase
 
-// ----------------------------------------------------------------------
-// 2. REFERENCIAS Y MANEJO DEL DOM
-// ----------------------------------------------------------------------
-
-const dashboardContent = document.getElementById('dashboard-content');
-const logoutBtn = document.getElementById('logout-btn');
 const pedidosList = document.getElementById('pedidos-list');
 const pedidosCount = document.getElementById('pedidos-count');
-const conversacionList = document.getElementById('conversacion-list');
-const messageElement = document.getElementById('message');
+const modal = document.getElementById('detail-modal');
 
 // ----------------------------------------------------------------------
-// 3. VERIFICACIÓN DE AUTENTICACIÓN (Seguridad)
+// 2. FUNCIÓN DE CARGA DE DATOS (API)
 // ----------------------------------------------------------------------
 
 /**
- * Verifica la sesión del usuario. Si no hay sesión, redirige al login.
+ * Carga los pedidos desde la tabla de Supabase.
  */
-async function checkSession() {
-    messageElement.textContent = 'Verificando sesión...';
+async function fetchPedidos() {
+    console.log("Intentando cargar pedidos desde Supabase...");
     
-    // Obtener el usuario autenticado
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    // Construye la URL de la API REST de Supabase para seleccionar todos los campos
+    const fetchUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?select=*`;
 
-    if (!user) {
-        // Redirige al login si no hay usuario
-        window.location.href = 'index.html';
-    } else {
-        // Muestra el contenido SÓLO si el usuario está autenticado
-        dashboardContent.style.display = 'block'; 
+    try {
+        const response = await fetch(fetchUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
         
-        // Usuario autenticado, cargar los datos
-        loadDashboardData();
+        // Asigna la data cargada a la variable global mockData
+        mockData = data.map(pedido => ({
+            ...pedido,
+            // ASEGURAMOS QUE LA ESTRUCTURA SE ADAPTE A COMO ESPERA RENDERIZAR EL CÓDIGO JS
+            // Necesitarás adaptar estos nombres de campo si tu tabla es diferente.
+            // Ejemplo: pedido.id => pedido.id
+            // Ejemplo: pedido.nombre_cliente => pedido.clientes.nombre 
+        }));
+        
+        console.log(`✅ ${data.length} pedidos cargados correctamente.`);
+        
+        // Una vez cargados, filtramos y renderizamos
+        filterPedidos();
+
+    } catch (error) {
+        console.error('❌ Error al cargar los pedidos desde Supabase:', error);
+        pedidosList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #e74c3c; font-weight: bold;">Error: No se pudo conectar a Supabase o cargar la tabla.</p>';
     }
 }
 
+
 // ----------------------------------------------------------------------
-// 4. CARGA DE DATOS DEL DASHBOARD
+// 3. LÓGICA DE ASIGNACIÓN Y ACTUALIZACIÓN DE ESTADO (Requiere UPDATE en API)
 // ----------------------------------------------------------------------
 
-async function loadDashboardData() {
-    messageElement.textContent = 'Cargando datos...';
-    messageElement.style.color = '#00a896'; 
+/**
+ * Función que se llama al hacer clic en 'Tomar Asignación'.
+ * NOTA: Esta función DEBE ser modificada para enviar la actualización a tu API.
+ */
+function handleAssignClick() {
+    if (currentPedidoId !== null) {
+        // En un entorno real, aquí se llamaría a una API de UPDATE:
+        asignarPedido(currentPedidoId, loggedUser);
+    }
+}
 
-    // A. Cargar los últimos pedidos
-    const { data: pedidos, error: pedidosError } = await supabaseClient
-        .from('pedidos')
-        .select(`
-            producto_servicio, 
-            monto, 
-            estado,
-            fecha_pedido,
-            clientes (nombre, numero_whatsapp)
-        `)
-        .order('fecha_pedido', { ascending: false })
-        .limit(10); 
-
-    if (pedidosError) {
-        // Manejo de error (ej. RLS incorrecto)
-        console.error('Error al cargar pedidos:', pedidosError);
-        messageElement.textContent = 'Error al cargar los pedidos. (Revise RLS)';
-        pedidosList.innerHTML = '<li>Error de conexión o permisos.</li>';
-    } else {
-        pedidosCount.textContent = pedidos.length; 
-        pedidosList.innerHTML = ''; 
-        
-        pedidos.forEach(p => {
-            const listItem = document.createElement('li');
-            const clientName = p.clientes.nombre || `+${p.clientes.numero_whatsapp}`;
-            const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
+/**
+ * Asigna el pedido al usuario logueado.
+ * NOTA: Usa la variable 'mockData' localmente. Requiere API.
+ * * !!! ADVERTENCIA: Esta implementación local no persiste en Supabase. !!!
+ * Debes implementar el UPDATE de Supabase para hacer persistente la asignación.
+ */
+async function asignarPedido(id, usuario) {
+    const pedido = mockData.find(p => p.id === id);
+    
+    if (pedido && pedido.estado === 'Pendiente') {
+        if (pedido.asignado_a === 'N/A') {
             
-            listItem.innerHTML = `
-                <span style="font-weight: bold;">[${p.estado}]</span> ${p.producto_servicio} (${p.monto}€)<br>
-                <small>Cliente: ${clientName} - ${date}</small>
-            `;
-            pedidosList.appendChild(listItem);
-        });
+            // --- CÓDIGO PARA LLAMAR AL UPDATE DE SUPABASE ---
+            
+            const updateUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?id=eq.${id}`;
+            const updateData = {
+                asignado_a: usuario,
+                fecha_ultima_accion: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(updateUrl, {
+                    method: 'PATCH', // Usar PATCH para actualizar
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Prefer': 'return=minimal' // Respuesta mínima
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (!response.ok) {
+                     throw new Error(`Error al actualizar estado: ${response.status}`);
+                }
+                
+                // Actualización local exitosa y luego refrescamos la UI
+                pedido.asignado_a = usuario;
+                pedido.fecha_ultima_accion = updateData.fecha_ultima_accion;
+                
+                filterPedidos();
+                showDetail(id); // Refresca el modal para mostrar los nuevos botones
+                alert(`✅ Pedido #${id} tomado y asignado a ${usuario}.`);
+                
+            } catch (error) {
+                 console.error('Error al intentar asignar pedido en Supabase:', error);
+                 alert('❌ Error de conexión al intentar asignar el pedido.');
+            }
+            
+        } else if (pedido.asignado_a === usuario) {
+            alert(`ℹ️ El pedido #${id} ya está asignado a ti.`);
+        } else {
+            alert(`❌ El pedido #${id} ya está siendo gestionado por ${pedido.asignado_a}. No puedes tomarlo.`);
+        }
+    } else if (pedido && pedido.estado !== 'Pendiente') {
+         alert(`❌ El pedido #${id} ya está ${pedido.estado} y no puede ser re-asignado.`);
+    } else {
+         alert(`❌ Error: Pedido #${id} no encontrado.`);
+    }
+}
+
+/**
+ * Actualiza el estado de un pedido (Completado/Cancelado).
+ * * !!! ADVERTENCIA: Esta implementación local no persiste en Supabase. !!!
+ * Debes implementar el UPDATE de Supabase para hacer persistente el cambio.
+ */
+async function actualizarEstado(id, nuevoEstado) {
+    const pedido = mockData.find(p => p.id === id);
+    
+    if (pedido && pedido.estado === 'Pendiente') {
         
-        messageElement.textContent = 'Datos de pedidos cargados.';
+        if (pedido.asignado_a !== loggedUser) {
+            alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}. Solo el usuario asignado puede completarlo/cancelarlo.`);
+            return;
+        }
+        
+        // --- CÓDIGO PARA LLAMAR AL UPDATE DE SUPABASE ---
+        
+        const updateUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?id=eq.${id}`;
+        const updateData = {
+            estado: nuevoEstado,
+            fecha_ultima_accion: new Date().toISOString()
+        };
+
+        try {
+            const response = await fetch(updateUrl, {
+                method: 'PATCH', // Usar PATCH para actualizar
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            if (!response.ok) {
+                 throw new Error(`Error al actualizar estado: ${response.status}`);
+            }
+
+            // Actualización local exitosa y luego refrescamos la UI
+            pedido.estado = nuevoEstado;
+            pedido.fecha_ultima_accion = updateData.fecha_ultima_accion;
+            
+            filterPedidos();
+            closeModal();
+            alert(`🎉 Pedido #${id} marcado como ${nuevoEstado}.`);
+
+        } catch (error) {
+             console.error('Error al intentar actualizar estado en Supabase:', error);
+             alert('❌ Error de conexión al intentar actualizar el estado del pedido.');
+        }
+        
+    } else if (pedido && pedido.estado === nuevoEstado) {
+        alert(`ℹ️ El pedido #${id} ya es ${nuevoEstado}.`);
+    } else if (pedido) {
+        alert(`❌ El pedido #${id} ya está ${pedido.estado} y no puede ser modificado.`);
+    } else {
+         alert(`❌ Error: Pedido #${id} no encontrado.`);
+    }
+}
+
+// ----------------------------------------------------------------------
+// 4. LÓGICA DE FILTRADO Y RENDERIZADO (Sin Cambios)
+// ----------------------------------------------------------------------
+
+function renderPedidos(data) {
+    pedidosList.innerHTML = ''; 
+    pedidosCount.textContent = data.length;
+
+    if (data.length === 0) {
+         pedidosList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #999;">Cargando pedidos...</p>';
+         return;
     }
 
-    // B. Cargar la actividad reciente de conversaciones (logs)
-    const { data: logs, error: logsError } = await supabaseClient
-        .from('conversaciones')
-        .select(`
-            es_entrada, 
-            contenido, 
-            chatbot_accion
-        `)
-        .order('created_at', { ascending: false })
-        .limit(5);
+    // ... (El resto de la función renderPedidos se mantiene igual) ...
 
-    if (!logsError) {
-        conversacionList.innerHTML = '';
-        logs.forEach(log => {
-            const direction = log.es_entrada ? 'Cliente' : 'Bot';
-            const style = log.es_entrada ? 'font-weight: bold; color: #3498db;' : 'color: #f39c12;';
+    data.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'pedido-item';
+        
+        const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; 
+        item.classList.add(estadoClass);
 
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-                <span style="${style}">${direction}</span>: ${log.contenido.substring(0, 70)}...<br>
-                <small>(${log.chatbot_accion || 'Mensaje'})</small>
-            `;
-            conversacionList.appendChild(listItem);
+        item.setAttribute('onclick', `showDetail(${p.id})`);
+
+        const assignedUser = p.asignado_a && p.asignado_a !== 'N/A' ? 
+            `<br><small style="color: #00fff2; font-weight: bold;">Asignado: ${p.asignado_a}</small>` : 
+            `<br><small style="color: #f39c12;">Sin Asignar</small>`;
+        
+        // *************************************************************
+        // * NOTA: AJUSTAR ESTO A LA ESTRUCTURA REAL DE TU TABLA DE DB *
+        // *************************************************************
+        // Ejemplo asumiendo que los datos del cliente vienen anidados. 
+        // Si vienen planos (ej. cliente_nombre, cliente_whatsapp), ajusta:
+        const clientName = p.clientes ? p.clientes.nombre : 'Cliente Desconocido'; 
+        const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
+        
+        item.innerHTML = `
+            <p style="font-size: 1.1em; margin: 0 0 5px 0; color: #c501e2;">
+                ${p.producto_nombre} 
+            </p>
+            <p style="margin: 0 0 5px 0;">
+                Estado: <strong style="color: ${getEstadoColor(p.estado)};">${p.estado}</strong>
+            </p>
+            <p style="margin: 0;">
+                <small>Cliente: ${clientName}</small>
+                ${assignedUser}
+            </p>
+            <small style="color: #999;">Pedido #${p.id} | ${date}</small>
+        `;
+        pedidosList.appendChild(item);
+    });
+}
+
+
+function filterPedidos() {
+    const checkboxes = document.querySelectorAll('.filter-checkbox');
+    const activeFilters = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value); 
+    
+    let filteredData;
+
+    if (activeFilters.length === 0) {
+        filteredData = mockData; 
+    } else {
+        filteredData = mockData.filter(p => {
+            // Asegura que p.estado exista antes de intentar manipularlo
+            if (!p.estado) return false; 
+            const normalizedState = p.estado.toLowerCase().replace(/á/g, 'a');
+            return activeFilters.includes(normalizedState);
         });
     }
     
-    // Mensaje final
-    messageElement.textContent = 'Dashboard actualizado.';
-    messageElement.style.color = '#28a745';
+    renderPedidos(filteredData);
+}
+
+function getEstadoColor(estado) {
+    if (estado === 'Pendiente') return '#f39c12';
+    if (estado === 'Completada') return '#2ecc71';
+    if (estado === 'Cancelada') return '#e74c3c';
+    return '#e0e0e0';
 }
 
 // ----------------------------------------------------------------------
-// 5. CIERRE DE SESIÓN
+// 5. FUNCIONALIDAD DEL MODAL (Ajustada para manejar posibles valores null/undefined)
 // ----------------------------------------------------------------------
 
-async function handleLogout() {
-    messageElement.textContent = 'Cerrando sesión...';
-    messageElement.style.color = '#e74c3c';
+function showDetail(pedidoId) {
+    const pedido = mockData.find(p => p.id === pedidoId);
+    if (!pedido) return; 
+
+    currentPedidoId = pedidoId; 
     
-    await supabaseClient.auth.signOut();
+    // *************************************************************
+    // * NOTA: AJUSTAR ESTO A LA ESTRUCTURA REAL DE TU TABLA DE DB *
+    // *************************************************************
+    // Aseguramos que las propiedades existan
+    const clientName = (pedido.clientes && pedido.clientes.nombre) ? pedido.clientes.nombre : 'N/A';
+    const clientId = (pedido.clientes && pedido.clientes.numero_whatsapp) ? pedido.clientes.numero_whatsapp : 'N/A';
     
-    // Redirigir al login
-    window.location.href = 'index.html';
+    document.getElementById('modal-title').textContent = `Detalle del Pedido #${pedido.id}`;
+    document.getElementById('detail-product').textContent = pedido.producto_nombre || 'N/A';
+    document.getElementById('detail-price').textContent = `${(pedido.monto || 0).toFixed(2)}€`;
+    document.getElementById('detail-status').textContent = pedido.estado || 'N/A';
+    document.getElementById('detail-client-name').textContent = clientName;
+    document.getElementById('detail-client-id').textContent = clientId;
+    
+    const lastActionDate = pedido.fecha_ultima_accion ? new Date(pedido.fecha_ultima_accion).toLocaleString('es-ES') : 'N/A';
+    document.getElementById('detail-assigned-user').textContent = pedido.asignado_a || 'N/A';
+    document.getElementById('detail-last-action-date').textContent = lastActionDate;
+    
+    // ... (El resto del control de botones se mantiene igual) ...
+
+    const assignBtn = document.getElementById('assign-btn');
+    const completeBtn = document.getElementById('complete-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    
+    assignBtn.textContent = `Asignarme (${loggedUser})`;
+
+    if (pedido.estado === 'Pendiente') {
+        
+        if (pedido.asignado_a === 'N/A' || !pedido.asignado_a) { 
+            assignBtn.classList.remove('hidden');
+            assignBtn.disabled = false;
+            completeBtn.classList.add('hidden'); 
+            cancelBtn.classList.add('hidden'); 
+
+        } else if (pedido.asignado_a === loggedUser) {
+            assignBtn.classList.add('hidden');
+            completeBtn.classList.remove('hidden');
+            cancelBtn.classList.remove('hidden');
+            completeBtn.disabled = false;
+            cancelBtn.disabled = false;
+
+        } else {
+            assignBtn.classList.add('hidden'); 
+            completeBtn.classList.remove('hidden'); 
+            cancelBtn.classList.remove('hidden'); 
+            completeBtn.disabled = true; 
+            cancelBtn.disabled = true;
+        }
+    } else {
+        assignBtn.classList.add('hidden');
+        completeBtn.classList.add('hidden');
+        cancelBtn.classList.add('hidden');
+    }
+
+    // Llenar el Log de Conversación
+    const logContainer = document.getElementById('detail-conversation-log');
+    logContainer.innerHTML = '';
+    
+    // Asegurarse de que el log exista y sea un array
+    const logs = pedido.logs || []; 
+    const sortedLogs = [...logs].reverse(); 
+
+    sortedLogs.forEach(log => {
+        const isClient = log.es_entrada;
+        const directionClass = isClient ? 'log-cliente' : 'log-bot';
+        const directionLabel = isClient ? 'Cliente' : 'Bot';
+
+        const logItem = document.createElement('div');
+        logItem.className = 'log-item';
+        logItem.innerHTML = `
+            <p style="margin: 0; padding: 0;">
+                <span class="${directionClass}">[${directionLabel}]</span> 
+                ${log.contenido || 'Sin contenido'}
+            </p>
+            <small style="color: #999;">Acción: ${log.chatbot_accion || 'N/A'}</small>
+        `;
+        logContainer.appendChild(logItem);
+    });
+    
+    modal.classList.add('visible');
+}
+
+function closeModal() {
+    modal.classList.remove('visible');
 }
 
 // ----------------------------------------------------------------------
-// 6. LISTENERS E INICIALIZACIÓN
+// 6. INICIALIZACIÓN Y LISTENERS (Llama a fetchPedidos)
 // ----------------------------------------------------------------------
 
-logoutBtn.addEventListener('click', handleLogout);
-checkSession();
+document.addEventListener('DOMContentLoaded', () => {
+    const userSelect = document.getElementById('logged-user-select');
+    
+    loggedUser = userSelect.value;
+
+    userSelect.addEventListener('change', (e) => {
+        loggedUser = e.target.value;
+        document.getElementById('message').textContent = `Usuario logueado cambiado a: ${loggedUser}.`;
+        if(currentPedidoId !== null && modal.classList.contains('visible')) {
+            showDetail(currentPedidoId);
+        }
+    });
+
+    // *** INICIO DE LA CARGA REAL DE DATOS ***
+    fetchPedidos();
+    
+    document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', filterPedidos);
+    });
+
+    // No es necesario llamar a filterPedidos() aquí, ya se llama dentro de fetchPedidos()
+    // filterPedidos(); 
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === "Escape") {
+            closeModal();
+        }
+    });
+});
