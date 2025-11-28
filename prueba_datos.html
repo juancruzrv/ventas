@@ -6,91 +6,7 @@
     <title>Dashboard - VISTA PREVIA (MODAL Y FILTROS)</title>
     
     <link rel="stylesheet" href="style.css"> 
-
-    <style>
-        /* * ESTILOS DEL MODAL (DEBEN IR AL FINAL DE style.css)
-         */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease;
-        }
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            background-color: #1e1e1e; 
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 800px;
-            box-shadow: 0 0 40px rgba(197, 1, 226, 0.7); 
-            border: 2px solid #c501e2;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-content h3 {
-            color: #00fff2; 
-            margin-top: 15px;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #c501e2;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: #c501e2;
-            font-size: 24px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .log-item {
-            padding: 8px 0;
-            border-bottom: 1px dotted #333;
-        }
-        .log-item span {
-            display: block;
-            font-size: 0.9em;
-            margin-top: 5px;
-            color: #e0e0e0;
-        }
-        .log-cliente {
-            font-weight: bold;
-            color: #00fff2;
-        }
-        .log-bot {
-            font-weight: bold;
-            color: #c501e2;
-        }
-        /* Estilo para hacer clickeable cada item de la lista de pedidos */
-        #pedidos-list li {
-            cursor: pointer;
-            transition: background-color 0.2s;
-            border-left: 5px solid transparent;
-            padding-left: 10px; 
-        }
-        #pedidos-list li:hover {
-            background-color: #2c2c2c;
-            border-left-color: #c501e2;
-        }
-    </style>
-    </head>
+</head>
 <body>
 
     <div id="dashboard-content" style="display: block;">
@@ -104,7 +20,7 @@
             Estado: <span id="message">Vista previa de datos simulados (Modal activo)</span>
         </div>
 
-        <div class="card" style="border-left-color: #3498db;">
+        <div class="card">
             <h3>📈 Métricas Clave</h3>
             <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #00fff2;">0</span></p>
         </div>
@@ -122,7 +38,8 @@
                 </div>
 
                 <div id="pedidos-list">
-                    </div>
+                    <p>Cargando pedidos simulados...</p>
+                </div>
             </div>
             
         </div>
@@ -208,22 +125,34 @@
         const pedidosCount = document.getElementById('pedidos-count');
         const modal = document.getElementById('detail-modal');
 
+        /**
+         * Renderiza los pedidos en la vista principal.
+         * @param {Array} data - Array de pedidos a renderizar.
+         */
         function renderPedidos(data) {
             pedidosList.innerHTML = ''; 
             pedidosCount.textContent = data.length;
+
+            if (data.length === 0) {
+                 pedidosList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #999;">No hay pedidos en este estado.</p>';
+                 return;
+            }
 
             data.forEach(p => {
                 const item = document.createElement('div');
                 item.className = 'pedido-item';
                 
+                // 1. Asignar clase de estado para el borde CSS
                 const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; 
                 item.classList.add(estadoClass);
 
+                // 2. Hacer el contenedor clickeable
                 item.setAttribute('onclick', `showDetail(${p.id})`);
 
                 const clientName = p.clientes.nombre || `(Núm: ${p.clientes.numero_whatsapp})`;
                 const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
                 
+                // 3. Contenido interno
                 item.innerHTML = `
                     <p style="font-size: 1.1em; margin: 0 0 5px 0; color: #c501e2;">
                         ${p.producto_nombre} 
@@ -240,13 +169,18 @@
             });
         }
 
+        /**
+         * Función principal de filtrado.
+         */
         function filterPedidos(filterValue, btn) {
+            // Manejar la clase 'active' de los botones
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             let filteredData = mockData;
 
             if (filterValue !== 'todos') {
+                // Normaliza el valor del filtro a 'Pendiente', 'Completada', 'Cancelada'
                 const normalizedFilter = filterValue.charAt(0).toUpperCase() + filterValue.slice(1);
                 filteredData = mockData.filter(p => p.estado === normalizedFilter);
             }
@@ -254,6 +188,9 @@
             renderPedidos(filteredData);
         }
 
+        /**
+         * Ayudante para obtener el color de texto según el estado.
+         */
         function getEstadoColor(estado) {
             if (estado === 'Pendiente') return '#f39c12';
             if (estado === 'Completada') return '#2ecc71';
@@ -262,13 +199,17 @@
         }
 
         // ----------------------------------------------------------------------
-        // 3. FUNCIONALIDAD DEL MODAL 
+        // 3. FUNCIONALIDAD DEL MODAL
         // ----------------------------------------------------------------------
         
+        /**
+         * Muestra el modal con los datos del pedido seleccionado.
+         */
         function showDetail(pedidoId) {
             const pedido = mockData.find(p => p.id === pedidoId);
             if (!pedido) return;
 
+            // Llenar los campos de Detalle
             document.getElementById('modal-title').textContent = `Detalle del Pedido #${pedido.id}`;
             document.getElementById('detail-product').textContent = pedido.producto_nombre;
             document.getElementById('detail-price').textContent = `${pedido.monto.toFixed(2)}€`;
@@ -276,9 +217,11 @@
             document.getElementById('detail-client-name').textContent = pedido.clientes.nombre;
             document.getElementById('detail-client-id').textContent = pedido.clientes.numero_whatsapp;
 
+            // Llenar el Log de Conversación
             const logContainer = document.getElementById('detail-conversation-log');
             logContainer.innerHTML = '';
             
+            // Revertir el orden para que la conversación empiece desde el inicio
             const sortedLogs = [...pedido.logs].reverse(); 
 
             sortedLogs.forEach(log => {
@@ -298,12 +241,14 @@
                 logContainer.appendChild(logItem);
             });
             
-            // LÍNEA CLAVE: Hace visible el modal
+            // Mostrar el Modal
             modal.classList.add('visible');
         }
 
+        /**
+         * Oculta el modal.
+         */
         function closeModal() {
-            // LÍNEA CLAVE: Oculta el modal
             modal.classList.remove('visible');
         }
 
@@ -312,8 +257,10 @@
         // ----------------------------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Cargar todos los pedidos al inicio
             renderPedidos(mockData); 
             
+            // Permitir cerrar el modal con la tecla ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === "Escape") {
                     closeModal();
