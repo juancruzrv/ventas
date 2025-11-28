@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestión de Interacciones de WhatsApp Business</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; }
+        h1 { color: #128c7e; }
+        .container { display: flex; gap: 20px; margin-top: 20px;}
+        .data-viewer, .settings { flex: 1; padding: 20px; border-radius: 8px; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #chat-data { list-style: none; padding: 0; }
+        #chat-data li { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9em; }
+        .logout-btn {
+            background-color: #d32525;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #a81c1c;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="logout-btn" onclick="logoutUser(_supabase)">Cerrar Sesión</button>
+    <h1>🤖 Panel de Control de WhatsApp Business</h1>
+    <p id="user-info">Cargando...</p>
+
+    <div class="settings">
+        <h3>🔧 Configuración de Datos</h3>
+        <p>Asegúrate de que la tabla **`interacciones`** exista en Supabase.</p>
+    </div>
+
+    <hr>
+
+    <div class="container">
+        <div class="data-viewer">
+            <h2>💬 Interacciones Recientes</h2>
+            <p>Datos en tiempo real cargados desde Supabase.</p>
+            <ul id="chat-data">
+                <li>Verificando sesión y cargando datos...</li>
+            </ul>
+        </div>
+
+        <div class="data-viewer">
+            <h2>📊 Resumen de Tareas</h2>
+            <div id="sales-summary">
+                <p><strong>Pedidos Tomados:</strong> <span id="orders-count">0</span></p>
+                <p><strong>Ventas Cerradas:</strong> <span id="sales-count">0</span></p>
+                <p><strong>Productos Recomendados:</strong> <span id="recom-count">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script> 
+    <script src="dashboard.js"></script> 
+    
+    <script>
+        const SUPABASE_URL = 'https://hppmetemxodplpsidmlv.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcG1ldGVteG9kcGxwc2lkbWx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzMDI5NzgsImV4cCI6MjA3OTg3ODk3OH0.ZpyI1ANOY39EHpAjdHZjv6WHwLcb7tvB1Ss5njxMHqM';
+        
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        checkUserSession(_supabase, 'dashboard');
+    </script>
+    
+</body>
+</html>
