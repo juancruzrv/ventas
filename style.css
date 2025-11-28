@@ -1,18 +1,18 @@
 /* Importación de la fuente moderna y sobria (Roboto) */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+@import url('https://fonts.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
 /* ======================================= */
 /* 1. Estilos Globales (Modo Oscuro) */
 /* ======================================= */
 body { 
-    font-family: 'Roboto', sans-serif; 
+    font-family: 'Roboto', sans-serif; /* Fuente moderna */
     padding: 20px; 
-    background-color: #121212; 
-    color: #e0e0e0; 
+    background-color: #121212; /* Fondo oscuro */
+    color: #e0e0e0; /* Texto claro */
     margin: 0; 
 }
 h1 { 
-    color: #c501e2; 
+    color: #c501e2; /* Título principal en color neón */
     font-size: 2em; 
     margin: 0;
     font-weight: 700;
@@ -23,8 +23,8 @@ h2 {
     font-weight: 400;
 }
 h3 { 
-    color: #e0e0e0; 
-    border-bottom: 1px solid rgba(197, 1, 226, 0.5); 
+    color: #e0e0e0; /* Títulos de sección claros */
+    border-bottom: 1px solid rgba(197, 1, 226, 0.5); /* Separador neón sutil */
     padding-bottom: 10px;
     margin-top: 0;
     font-weight: 300;
@@ -35,7 +35,7 @@ ul {
 }
 li {
     padding: 8px 0;
-    border-bottom: 1px dotted #333; 
+    border-bottom: 1px dotted #333; /* Separación oscura sutil */
     font-size: 0.95em;
     font-weight: 300;
 }
@@ -50,18 +50,22 @@ li {
     min-height: 100vh; 
 }
 .login-container { 
-    background: #1e1e1e; 
+    background: #1e1e1e; /* Fondo de contenedor oscuro */
     padding: 30px; 
     border-radius: 10px; 
+    
+    /* MODIFICACIÓN: Borde sólido de neón */
+    border: 2px solid #c501e2; 
+    
     box-shadow: 0 0 30px 10px rgba(197, 1, 226, 0.7); /* Sombra Neón más visible */
     width: 320px; 
     transition: box-shadow 0.3s ease-in-out; /* Transición suave para la sombra */
-    position: relative; /* Necesario para la animación */
+    position: relative; 
 }
 
 /* Animación de Neón al hacer clic */
 .login-container.active-neon {
-    animation: neon-pulse 0.8s ease-out forwards; /* La animación se ejecuta una vez */
+    animation: neon-pulse 0.8s ease-out forwards; 
 }
 
 @keyframes neon-pulse {
@@ -99,7 +103,7 @@ input[type="email"], input[type="password"] {
 }
 input[type="email"]:focus, input[type="password"]:focus {
     border-color: #c501e2; 
-    box-shadow: 0 0 8px rgba(197, 1, 226, 0.9); /* Sombra de enfoque un poco más fuerte */
+    box-shadow: 0 0 8px rgba(197, 1, 226, 0.9); 
     outline: none;
 }
 button { 
@@ -116,7 +120,7 @@ button {
 }
 button:hover { 
     background-color: #e327ff; 
-    box-shadow: 0 0 15px rgba(197, 1, 226, 0.9); /* Sombra de hover más fuerte */
+    box-shadow: 0 0 15px rgba(197, 1, 226, 0.9); 
 }
 #message { 
     color: #ff6666; 
