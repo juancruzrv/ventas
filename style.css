@@ -1,17 +1,17 @@
 /* --- Variables para el Color Neón --- */
 :root {
-    --neon-color: #00FFFF; /* Cian Neón (puedes cambiarlo a verde, rosa, etc.) */
-    --background-dark: #0D1117; /* Fondo muy oscuro */
-    --card-dark: #161B22; /* Tarjeta oscura */
-    --text-light: #EAEAEA; /* Texto claro */
+    --neon-color: #00FFFF; 
+    --background-dark: #0D1117; 
+    --card-dark: #161B22; 
+    --text-light: #EAEAEA; 
     --transition-speed: 0.3s;
-    --error-color: #FF6347; /* Rojo neón para errores */
+    --error-color: #FF6347; 
 }
 
 /* --- Base y Centrado Responsive --- */
 body {
-    /* Usa Flexbox para centrar la tarjeta */
-    font-family: 'Arial', sans-serif;
+    /* Implementando la fuente Inter */
+    font-family: 'Inter', sans-serif; 
     background-color: var(--background-dark);
     display: flex;
     justify-content: center;
@@ -39,24 +39,22 @@ body {
     transition: box-shadow var(--transition-speed);
 }
 
-/* Efecto de "encendido" al pasar el ratón */
 .login-container:hover {
     box-shadow: 0 0 15px var(--neon-color), 0 0 30px var(--neon-color), inset 0 0 10px var(--neon-color);
 }
 
 /* --- Títulos y Texto --- */
-/* Cambiamos el estilo del título para reflejar "Bienvenido" */
 h1 {
     color: var(--neon-color);
     margin-bottom: 30px;
     font-size: 2.2em;
-    /* Efecto de brillo en el texto */
     text-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(0, 255, 255, 0.5); 
 }
 
 label {
     display: block;
-    text-align: left;
+    /* CAMBIO: Centrar el texto de la etiqueta */
+    text-align: center; 
     margin-bottom: 8px;
     font-weight: bold;
     color: var(--text-light);
@@ -82,7 +80,6 @@ input[type="email"]:focus,
 input[type="password"]:focus {
     outline: none; 
     border-color: var(--neon-color);
-    /* Sombra interior para simular la luz del campo */
     box-shadow: inset 0 0 8px var(--neon-color); 
 }
 
@@ -98,13 +95,11 @@ button {
     font-weight: bold;
     width: 100%;
     transition: background-color 0.3s, box-shadow 0.3s;
-    /* Sombra que hace que el botón "brille" */
     box-shadow: 0 0 5px var(--neon-color), 0 0 15px rgba(0, 255, 255, 0.7);
 }
 
 button:hover {
     background-color: #33FFFF; 
-    /* Aumentar el brillo al pasar el ratón */
     box-shadow: 0 0 10px var(--neon-color), 0 0 30px rgba(0, 255, 255, 0.9);
 }
 
