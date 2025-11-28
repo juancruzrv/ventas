@@ -1,6 +1,6 @@
 /* --- Variables para el Color Neón --- */
 :root {
-    --neon-color: #00FFFF; 
+    --neon-color: #C501E2; 
     --background-dark: #0D1117; 
     --card-dark: #161B22; 
     --text-light: #EAEAEA; 
@@ -10,7 +10,6 @@
 
 /* --- Base y Centrado Responsive --- */
 body {
-    /* Implementando la fuente Inter */
     font-family: 'Inter', sans-serif; 
     background-color: var(--background-dark);
     display: flex;
@@ -32,10 +31,10 @@ body {
     text-align: center;
     border: 1px solid var(--neon-color); 
     
-    /* El efecto Neón principal de la tarjeta */
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 
-                0 0 20px rgba(0, 255, 255, 0.3), 
-                inset 0 0 5px rgba(0, 255, 255, 0.2); 
+    /* Efecto Neón de la tarjeta: usando el nuevo color */
+    box-shadow: 0 0 10px rgba(197, 1, 226, 0.5), 
+                0 0 20px rgba(197, 1, 226, 0.3), 
+                inset 0 0 5px rgba(197, 1, 226, 0.2); 
     transition: box-shadow var(--transition-speed);
 }
 
@@ -48,13 +47,13 @@ h1 {
     color: var(--neon-color);
     margin-bottom: 30px;
     font-size: 2.2em;
-    text-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(0, 255, 255, 0.5); 
+    text-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(197, 1, 226, 0.5); 
 }
 
 label {
     display: block;
-    /* CAMBIO: Centrar el texto de la etiqueta */
-    text-align: center; 
+    /* ALINEACIÓN CORRECTA: A la izquierda para mejor UX */
+    text-align: left; 
     margin-bottom: 8px;
     font-weight: bold;
     color: var(--text-light);
@@ -95,12 +94,12 @@ button {
     font-weight: bold;
     width: 100%;
     transition: background-color 0.3s, box-shadow 0.3s;
-    box-shadow: 0 0 5px var(--neon-color), 0 0 15px rgba(0, 255, 255, 0.7);
+    box-shadow: 0 0 5px var(--neon-color), 0 0 15px rgba(197, 1, 226, 0.7);
 }
 
 button:hover {
-    background-color: #33FFFF; 
-    box-shadow: 0 0 10px var(--neon-color), 0 0 30px rgba(0, 255, 255, 0.9);
+    background-color: #E233FF; /* Tono más claro de púrpura al pasar el ratón */
+    box-shadow: 0 0 10px var(--neon-color), 0 0 30px rgba(197, 1, 226, 0.9);
 }
 
 /* --- Mensaje de Error --- */
