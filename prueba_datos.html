@@ -3,10 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - VISTA PREVIA (DATOS SIMULADOS)</title>
+    <title>Dashboard - VISTA PREVIA (MODAL DE DETALLE)</title>
     
     <link rel="stylesheet" href="style.css"> 
-</head>
+
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Fondo semi-transparente oscuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #1e1e1e; /* Color de tarjeta oscuro */
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 0 40px rgba(197, 1, 226, 0.7); /* Sombra neón */
+            border: 2px solid #c501e2;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            color: #00fff2; /* Título secundario neón */
+            margin-top: 15px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #c501e2;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #c501e2;
+            font-size: 24px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .log-item {
+            padding: 8px 0;
+            border-bottom: 1px dotted #333;
+        }
+        .log-item span {
+            display: block;
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: #e0e0e0;
+        }
+        .log-cliente {
+            font-weight: bold;
+            color: #00fff2;
+        }
+        .log-bot {
+            font-weight: bold;
+            color: #c501e2;
+        }
+        /* Estilo para hacer clickeable cada item de la lista de pedidos */
+        #pedidos-list li {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 5px solid transparent;
+            padding-left: 10px; /* Espacio para el borde de hover */
+        }
+        #pedidos-list li:hover {
+            background-color: #2c2c2c;
+            border-left-color: #c501e2;
+        }
+
+    </style>
+    </head>
 <body>
 
     <div id="dashboard-content" style="display: block;">
@@ -17,7 +100,7 @@
         </div>
         
         <div id="status-bar">
-            Estado: <span id="message">Vista previa de datos simulados</span>
+            Estado: <span id="message">Vista previa de datos simulados (Modal activo)</span>
         </div>
 
         <div class="card" style="border-left-color: #3498db;">
@@ -27,17 +110,10 @@
 
         <div class="data-grid">
             
-            <div class="card">
-                <h3>🛒 Últimos Pedidos (Detalle)</h3>
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3>🛒 Pedidos</h3>
                 <ul id="pedidos-list">
-                    <li>Cargando pedidos simulados...</li>
-                </ul>
-            </div>
-            
-            <div class="card" style="border-left-color: #00fff2;">
-                <h3>💬 Logs de Conversación Reciente (ID: Producto, Stock, Acción)</h3>
-                <ul id="conversacion-list">
-                    <li>Cargando logs simulados...</li>
+                    <li>Cargando pedidos...</li>
                 </ul>
             </div>
             
@@ -45,99 +121,152 @@
         
     </div> 
 
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Detalle del Pedido #</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            
+            <h3 style="color: #00fff2;">Información del Pedido</h3>
+            <p>
+                Producto: <strong id="detail-product"></strong><br>
+                Precio: <strong id="detail-price"></strong><br>
+                Estado: <strong id="detail-status"></strong><br>
+            </p>
+            
+            <h3 style="color: #00fff2;">Información del Cliente</h3>
+            <p>
+                Nombre: <strong id="detail-client-name"></strong><br>
+                WhatsApp ID: <strong id="detail-client-id"></strong><br>
+            </p>
+
+            <h3 style="color: #c501e2;">Transcripción de la Conversación</h3>
+            <div id="detail-conversation-log">
+                </div>
+
+        </div>
+    </div>
+
     <script>
         // ----------------------------------------------------------------------
-        // 1. DATOS SIMULADOS (JSON que vendría de Supabase)
+        // 1. DATOS SIMULADOS (JSON que contendrían los Logs anidados)
         // ----------------------------------------------------------------------
 
-        // A. SIMULACIÓN DE PEDIDOS
-        // Se incluyen los campos clave: producto_nombre, estado y el numero_whatsapp (como ID único)
-        const mockPedidos = [
+        // A. SIMULACIÓN DE PEDIDOS (Ahora con un campo de logs anidado para la prueba)
+        const mockData = [
             {
                 id: 105,
-                producto_nombre: "Oud Ispahan 100ml", // Producto buscado y confirmado
+                producto_nombre: "Oud Ispahan 100ml",
                 monto: 120.00,
-                estado: "Pendiente", // Estado de la operación
-                clientes: { 
-                    nombre: "Andrea García", 
-                    numero_whatsapp: "+5491155551234" // ID ÚNICO DEL CLIENTE
-                }
+                estado: "Pendiente",
+                fecha_pedido: "2025-11-28T09:30:00Z",
+                clientes: { nombre: "Andrea García", numero_whatsapp: "+5491155551234" },
+                logs: [ // Logs anidados (simulando una consulta JOIN)
+                    { es_entrada: true, contenido: "Sí, por favor, me envías el Oud Ispahan. ¿Cómo pago?", chatbot_accion: "Confirmación de Compra"},
+                    { es_entrada: false, contenido: "¡Excelente! Confirmamos que Oud Ispahan está en STOCK. ¿Deseas proceder con la compra por 120€?", chatbot_accion: "Confirmación de Stock"},
+                    { es_entrada: true, contenido: "Estoy buscando el perfume Oud Ispahan. ¿Lo tienen?", chatbot_accion: "Búsqueda de Producto"},
+                    { es_entrada: false, contenido: "Hola Andrea! Soy el Chatbot de Perfumes Árabes. ¿En qué puedo ayudarte hoy?", chatbot_accion: "Inicio de Conversación"}
+                ]
             },
             {
                 id: 104,
                 producto_nombre: "Shaghaf Oud Aswad",
                 monto: 45.00,
                 estado: "Completada",
-                clientes: { 
-                    nombre: "Ricardo Perez", 
-                    numero_whatsapp: "+5491166665678" 
-                }
-            },
-            {
-                id: 103,
-                producto_nombre: "Yatagan (Cancelado por Stock)",
-                monto: 70.00,
-                estado: "Cancelada",
-                clientes: { 
-                    nombre: "Javier López", 
-                    numero_whatsapp: "+5491177779012" 
-                }
+                fecha_pedido: "2025-11-27T18:45:00Z",
+                clientes: { nombre: "Ricardo Perez", numero_whatsapp: "+5491166665678" },
+                logs: [
+                    { es_entrada: true, contenido: "Recibido, muchas gracias. Ya lo probé y me encantó.", chatbot_accion: "Feedback Positivo"},
+                    { es_entrada: false, contenido: "Pedido enviado. El número de tracking es: T4G56. Que lo disfrutes!", chatbot_accion: "Pedido Enviado"},
+                    { es_entrada: true, contenido: "Quiero el Shaghaf Oud, ya lo compré antes.", chatbot_accion: "Recompra Directa"}
+                ]
             }
-        ];
-
-        // B. SIMULACIÓN DE CONVERSACIÓN (Ejemplo de la conversación de Andrea García)
-        const mockLogs = [
-            {
-                es_entrada: true, // Cliente -> Bot
-                contenido: "Sí, por favor, me envías el Oud Ispahan. ¿Cómo pago?",
-                chatbot_accion: "Confirmación de Compra",
-                created_at: "2025-11-28T10:05:00Z"
-            },
-            {
-                es_entrada: false, // Bot -> Cliente
-                contenido: "¡Excelente! Confirmamos que Oud Ispahan está en STOCK. ¿Deseas proceder con la compra por 120€?",
-                chatbot_accion: "Confirmación de Stock", // El Bot ha verificado el stock
-                created_at: "2025-11-28T10:04:00Z"
-            },
-            {
-                es_entrada: true, // Cliente -> Bot
-                contenido: "Estoy buscando el perfume Oud Ispahan. ¿Lo tienen?",
-                chatbot_accion: "Búsqueda de Producto", // El Cliente indica el producto
-                created_at: "2025-11-28T09:45:00Z"
-            },
-            {
-                es_entrada: false, // Bot -> Cliente
-                contenido: "Hola Andrea! Soy el Chatbot de Perfumes Árabes. ¿En qué puedo ayudarte hoy?",
-                chatbot_accion: "Inicio de Conversación",
-                created_at: "2025-11-28T09:40:00Z"
-            }
+            // Los demás pedidos se cargan aquí si existieran
         ];
         
         // ----------------------------------------------------------------------
-        // 2. LÓGICA DE CARGA (Para renderizar los datos)
+        // 2. FUNCIONALIDAD DEL MODAL
+        // ----------------------------------------------------------------------
+        
+        const modal = document.getElementById('detail-modal');
+
+        /**
+         * Muestra el modal con los datos del pedido seleccionado.
+         * @param {number} pedidoId - ID del pedido a mostrar.
+         */
+        function showDetail(pedidoId) {
+            const pedido = mockData.find(p => p.id === pedidoId);
+            if (!pedido) return;
+
+            // 1. Llenar los campos de Detalle
+            document.getElementById('modal-title').textContent = `Detalle del Pedido #${pedido.id}`;
+            document.getElementById('detail-product').textContent = pedido.producto_nombre;
+            document.getElementById('detail-price').textContent = `${pedido.monto.toFixed(2)}€`;
+            document.getElementById('detail-status').textContent = pedido.estado;
+            document.getElementById('detail-client-name').textContent = pedido.clientes.nombre;
+            document.getElementById('detail-client-id').textContent = pedido.clientes.numero_whatsapp;
+
+            // 2. Llenar el Log de Conversación
+            const logContainer = document.getElementById('detail-conversation-log');
+            logContainer.innerHTML = ''; // Limpiar logs anteriores
+            
+            // Revertir el orden para que la conversación empiece desde el inicio
+            const sortedLogs = [...pedido.logs].reverse(); 
+
+            sortedLogs.forEach(log => {
+                const isClient = log.es_entrada;
+                const directionClass = isClient ? 'log-cliente' : 'log-bot';
+                const directionLabel = isClient ? 'Cliente' : 'Bot';
+
+                const logItem = document.createElement('div');
+                logItem.className = 'log-item';
+                logItem.innerHTML = `
+                    <p style="margin: 0; padding: 0;">
+                        <span class="${directionClass}">[${directionLabel}]</span> 
+                        ${log.contenido}
+                    </p>
+                    <small style="color: #999;">Acción: ${log.chatbot_accion}</small>
+                `;
+                logContainer.appendChild(logItem);
+            });
+            
+            // 3. Mostrar el Modal
+            modal.classList.add('visible');
+        }
+
+        /**
+         * Oculta el modal.
+         */
+        function closeModal() {
+            modal.classList.remove('visible');
+        }
+
+        // ----------------------------------------------------------------------
+        // 3. LÓGICA DE CARGA INICIAL
         // ----------------------------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', () => {
             const pedidosList = document.getElementById('pedidos-list');
             const pedidosCount = document.getElementById('pedidos-count');
-            const conversacionList = document.getElementById('conversacion-list');
-
+            
             // --- Carga de Pedidos ---
-            pedidosCount.textContent = mockPedidos.length; 
+            pedidosCount.textContent = mockData.length; 
             pedidosList.innerHTML = ''; 
             
-            mockPedidos.forEach(p => {
+            mockData.forEach(p => {
                 const listItem = document.createElement('li');
                 const clientName = p.clientes.nombre || `(Núm: ${p.clientes.numero_whatsapp})`;
                 const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
                 
-                // Determinamos el color del estado
-                let estadoColor = 'color: #e0e0e0;'; // Gris por defecto
-                if (p.estado === 'Pendiente') estadoColor = 'color: #f39c12;'; // Amarillo/Naranja
-                else if (p.estado === 'Completada') estadoColor = 'color: #2ecc71;'; // Verde
-                else if (p.estado === 'Cancelada') estadoColor = 'color: #e74c3c;'; // Rojo
+                let estadoColor = 'color: #e0e0e0;'; 
+                if (p.estado === 'Pendiente') estadoColor = 'color: #f39c12;'; 
+                else if (p.estado === 'Completada') estadoColor = 'color: #2ecc71;'; 
+                else if (p.estado === 'Cancelada') estadoColor = 'color: #e74c3c;'; 
 
-                // NUEVA ESTRUCTURA DE PRESENTACIÓN DEL PEDIDO
+                // CONVERTIMOS EL ELEMENTO EN CLICKEABLE
+                listItem.setAttribute('onclick', `showDetail(${p.id})`);
+                
                 listItem.innerHTML = `
                     <span style="font-weight: 700; ${estadoColor}">[${p.estado}]</span> 
                     <span style="color: #c501e2; font-weight: 700;">${p.producto_nombre}</span> 
@@ -146,19 +275,12 @@
                 `;
                 pedidosList.appendChild(listItem);
             });
-
-            // --- Carga de Logs ---
-            conversacionList.innerHTML = '';
-            mockLogs.forEach(log => {
-                const direction = log.es_entrada ? 'Cliente' : 'Bot';
-                const style = log.es_entrada ? 'font-weight: bold; color: #00fff2;' : 'color: #c501e2;';
-
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <span style="${style}">${direction}</span>: ${log.contenido.substring(0, 80)}...<br>
-                    <small>Acción: ${log.chatbot_accion || 'Mensaje'}</small>
-                `;
-                conversacionList.appendChild(listItem);
+            
+            // Permitir cerrar el modal con la tecla ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === "Escape") {
+                    closeModal();
+                }
             });
         });
 
