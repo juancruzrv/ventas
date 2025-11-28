@@ -3,15 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - VISTA PREVIA (FILTROS Y CONTENEDORES)</title>
+    <title>Dashboard - VISTA PREVIA (MODAL Y FILTROS)</title>
     
     <link rel="stylesheet" href="style.css"> 
 
     <style>
-        /* ... (Dejar aquí todos los estilos del Modal que ya tenías) ... */
-        .modal-overlay { /* ... */ }
-        .modal-overlay.visible { /* ... */ }
-        /* ... (TODOS los estilos del Modal van aquí para la prueba) ... */
+        /* * ESTILOS DEL MODAL (DEBEN IR AL FINAL DE style.css)
+         */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #1e1e1e; 
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 0 40px rgba(197, 1, 226, 0.7); 
+            border: 2px solid #c501e2;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            color: #00fff2; 
+            margin-top: 15px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #c501e2;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #c501e2;
+            font-size: 24px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .log-item {
+            padding: 8px 0;
+            border-bottom: 1px dotted #333;
+        }
+        .log-item span {
+            display: block;
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: #e0e0e0;
+        }
+        .log-cliente {
+            font-weight: bold;
+            color: #00fff2;
+        }
+        .log-bot {
+            font-weight: bold;
+            color: #c501e2;
+        }
+        /* Estilo para hacer clickeable cada item de la lista de pedidos */
+        #pedidos-list li {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 5px solid transparent;
+            padding-left: 10px; 
+        }
+        #pedidos-list li:hover {
+            background-color: #2c2c2c;
+            border-left-color: #c501e2;
+        }
     </style>
     </head>
 <body>
@@ -74,7 +151,7 @@
 
             <h3 style="color: #c501e2;">Transcripción de la Conversación</h3>
             <div id="detail-conversation-log">
-            </div>
+                </div>
 
         </div>
     </div>
@@ -131,10 +208,6 @@
         const pedidosCount = document.getElementById('pedidos-count');
         const modal = document.getElementById('detail-modal');
 
-        /**
-         * Renderiza los pedidos en la vista principal (Pedidos y Filtros)
-         * @param {Array} data - Array de pedidos a renderizar.
-         */
         function renderPedidos(data) {
             pedidosList.innerHTML = ''; 
             pedidosCount.textContent = data.length;
@@ -143,17 +216,14 @@
                 const item = document.createElement('div');
                 item.className = 'pedido-item';
                 
-                // 1. Asignar clase de estado para el borde CSS
-                const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; // ej: estado-completada
+                const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; 
                 item.classList.add(estadoClass);
 
-                // 2. Hacer el contenedor clickeable
                 item.setAttribute('onclick', `showDetail(${p.id})`);
 
                 const clientName = p.clientes.nombre || `(Núm: ${p.clientes.numero_whatsapp})`;
                 const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
                 
-                // 3. Contenido interno
                 item.innerHTML = `
                     <p style="font-size: 1.1em; margin: 0 0 5px 0; color: #c501e2;">
                         ${p.producto_nombre} 
@@ -170,20 +240,13 @@
             });
         }
 
-        /**
-         * Función principal de filtrado
-         * @param {string} filterValue - 'todos', 'pendiente', 'completada', 'cancelada'
-         * @param {HTMLElement} btn - El botón que fue clickeado
-         */
         function filterPedidos(filterValue, btn) {
-            // Manejar la clase 'active' de los botones
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             let filteredData = mockData;
 
             if (filterValue !== 'todos') {
-                // Filtra basándose en el valor del estado del pedido
                 const normalizedFilter = filterValue.charAt(0).toUpperCase() + filterValue.slice(1);
                 filteredData = mockData.filter(p => p.estado === normalizedFilter);
             }
@@ -191,10 +254,6 @@
             renderPedidos(filteredData);
         }
 
-        /**
-         * Ayudante para obtener el color de texto según el estado (para el interior del item)
-         * @param {string} estado 
-         */
         function getEstadoColor(estado) {
             if (estado === 'Pendiente') return '#f39c12';
             if (estado === 'Completada') return '#2ecc71';
@@ -203,7 +262,7 @@
         }
 
         // ----------------------------------------------------------------------
-        // 3. FUNCIONALIDAD DEL MODAL (Sin cambios funcionales)
+        // 3. FUNCIONALIDAD DEL MODAL 
         // ----------------------------------------------------------------------
         
         function showDetail(pedidoId) {
@@ -239,10 +298,12 @@
                 logContainer.appendChild(logItem);
             });
             
+            // LÍNEA CLAVE: Hace visible el modal
             modal.classList.add('visible');
         }
 
         function closeModal() {
+            // LÍNEA CLAVE: Oculta el modal
             modal.classList.remove('visible');
         }
 
@@ -251,7 +312,6 @@
         // ----------------------------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Cargar todos los pedidos al inicio
             renderPedidos(mockData); 
             
             document.addEventListener('keydown', (e) => {
