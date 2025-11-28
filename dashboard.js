@@ -9,17 +9,33 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Nombre de la tabla de pedidos (AJUSTA si es diferente)
 const TABLE_NAME = 'pedidos'; 
 
-// Inicialización del cliente de Supabase (CRÍTICO para Auth)
+// Inicialización del cliente de Supabase (CRÍTICO para Auth y API)
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ----------------------------------------------------------------------
-// ❌ LÓGICA DE CIERRE DE SESIÓN ELIMINADA
+// ✅ FUNCIÓN DE CIERRE DE SESIÓN
+// ----------------------------------------------------------------------
+/**
+ * Destruye la sesión de Supabase y luego redirige a index.html.
+ */
+async function handleLogout() {
+    console.log("Cerrando sesión de Supabase...");
+    
+    // 1. Destruir la sesión en Supabase
+    const { error } = await supabase.auth.signOut(); 
+
+    if (error) {
+        console.error("Error al cerrar sesión:", error.message);
+    }
+
+    // 2. Redireccionar al index
+    window.location.href = 'index.html'; 
+}
 // ----------------------------------------------------------------------
 
 let currentPedidoId = null;
-// El usuario es fijo, ya que no hay selector ni login real en esta versión
 let loggedUser = "Usuario A"; 
-let mockData = []; // Contendrá la data cargada de Supabase
+let mockData = []; 
 
 const pedidosList = document.getElementById('pedidos-list');
 const pedidosCount = document.getElementById('pedidos-count');
@@ -28,10 +44,8 @@ const modal = document.getElementById('detail-modal');
 // ----------------------------------------------------------------------
 // 2. FUNCIÓN DE CARGA DE DATOS (API FETCH)
 // ----------------------------------------------------------------------
+// MANTENER LA FUNCIÓN fetchPedidos() COMPLETA AQUÍ...
 
-/**
- * Carga los pedidos desde la tabla de Supabase.
- */
 async function fetchPedidos() {
     console.log("Intentando cargar pedidos desde Supabase...");
     
@@ -57,7 +71,7 @@ async function fetchPedidos() {
         
         console.log(`✅ ${data.length} pedidos cargados correctamente.`);
         
-        filterPedidos(); // Renderiza los pedidos
+        filterPedidos(); 
 
     } catch (error) {
         console.error('❌ Error al cargar los pedidos desde Supabase:', error);
@@ -68,32 +82,27 @@ async function fetchPedidos() {
 
 // ----------------------------------------------------------------------
 // 3. LÓGICA DE ASIGNACIÓN Y ACTUALIZACIÓN (CON SUPABASE PATCH)
+// MANTENER LAS FUNCIONES handleAssignClick(), asignarPedido(), y actualizarEstado() COMPLETAS AQUÍ...
+//
+// Debido a la longitud, asumimos que estas funciones se mantienen completas como en el código anterior.
 // ----------------------------------------------------------------------
-
 function handleAssignClick() {
     if (currentPedidoId !== null) {
         asignarPedido(currentPedidoId, loggedUser);
     }
 }
-
-/**
- * Asigna el pedido al usuario logueado usando PATCH en Supabase.
- */
 async function asignarPedido(id, usuario) {
     const pedido = mockData.find(p => p.id === id);
-    
     if (!pedido || pedido.estado !== 'Pendiente') {
         alert(`❌ El pedido #${id} ya está ${pedido.estado || 'gestionado'} y no puede ser re-asignado.`);
         return;
     }
-    
     if (pedido.asignado_a === 'N/A' || !pedido.asignado_a) {
         const updateUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?id=eq.${id}`;
         const updateData = {
             asignado_a: usuario,
             fecha_ultima_accion: new Date().toISOString()
         };
-
         try {
             const response = await fetch(updateUrl, {
                 method: 'PATCH',
@@ -105,19 +114,14 @@ async function asignarPedido(id, usuario) {
                 },
                 body: JSON.stringify(updateData)
             });
-            
             if (!response.ok) {
                  throw new Error(`Error al actualizar estado: ${response.status}`);
             }
-            
-            // Actualización local para reflejar el cambio sin recargar
             pedido.asignado_a = usuario;
             pedido.fecha_ultima_accion = updateData.fecha_ultima_accion;
-            
             filterPedidos();
             showDetail(id);
             alert(`✅ Pedido #${id} tomado y asignado a ${usuario}.`);
-            
         } catch (error) {
              console.error('Error al intentar asignar pedido en Supabase:', error);
              alert('❌ Error de conexión al intentar asignar el pedido.');
@@ -128,29 +132,21 @@ async function asignarPedido(id, usuario) {
         alert(`❌ El pedido #${id} ya está siendo gestionado por ${pedido.asignado_a}. No puedes tomarlo.`);
     }
 }
-
-/**
- * Actualiza el estado del pedido (Completado/Cancelado) usando PATCH en Supabase.
- */
 async function actualizarEstado(id, nuevoEstado) {
     const pedido = mockData.find(p => p.id === id);
-    
     if (!pedido || pedido.estado !== 'Pendiente') {
         alert(`❌ El pedido #${id} ya está ${pedido.estado || 'gestionado'} y no puede ser modificado.`);
         return;
     }
-
     if (pedido.asignado_a !== loggedUser) {
         alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}. Solo el usuario asignado puede completarlo/cancelarlo.`);
         return;
     }
-
     const updateUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?id=eq.${id}`;
     const updateData = {
         estado: nuevoEstado,
         fecha_ultima_accion: new Date().toISOString()
     };
-
     try {
         const response = await fetch(updateUrl, {
             method: 'PATCH',
@@ -162,30 +158,27 @@ async function actualizarEstado(id, nuevoEstado) {
             },
             body: JSON.stringify(updateData)
         });
-
         if (!response.ok) {
              throw new Error(`Error al actualizar estado: ${response.status}`);
         }
-
-        // Actualización local
         pedido.estado = nuevoEstado;
         pedido.fecha_ultima_accion = updateData.fecha_ultima_accion;
-        
         filterPedidos();
         closeModal();
         alert(`🎉 Pedido #${id} marcado como ${nuevoEstado}.`);
-
     } catch (error) {
          console.error('Error al intentar actualizar estado en Supabase:', error);
          alert('❌ Error de conexión al intentar actualizar el estado del pedido.');
     }
 }
+// ----------------------------------------------------------------------
 
 
 // ----------------------------------------------------------------------
 // 4. LÓGICA DE FILTRADO Y RENDERIZADO
+// MANTENER LAS FUNCIONES renderPedidos(), filterPedidos(), y getEstadoColor() COMPLETAS AQUÍ...
+//
 // ----------------------------------------------------------------------
-
 function renderPedidos(data) {
     pedidosList.innerHTML = ''; 
     pedidosCount.textContent = data.length;
@@ -209,7 +202,6 @@ function renderPedidos(data) {
             `<br><small style="color: #00fff2; font-weight: bold;">Asignado: ${p.asignado_a}</small>` : 
             `<br><small style="color: #f39c12;">Sin Asignar</small>`;
         
-        // Asumiendo que 'clientes' es una columna JSON/JSONB
         const clientName = (p.clientes && p.clientes.nombre) || 'Cliente Desconocido';
         const date = p.fecha_pedido ? new Date(p.fecha_pedido).toLocaleDateString('es-ES') : 'N/A';
         
@@ -257,11 +249,14 @@ function getEstadoColor(estado) {
     if (estado === 'Cancelada') return '#e74c3c';
     return '#e0e0e0';
 }
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 // 5. FUNCIONALIDAD DEL MODAL
+// MANTENER LAS FUNCIONES showDetail() y closeModal() COMPLETAS AQUÍ...
+//
 // ----------------------------------------------------------------------
-
 function showDetail(pedidoId) {
     const pedido = mockData.find(p => p.id === pedidoId);
     if (!pedido) return; 
@@ -346,6 +341,7 @@ function showDetail(pedidoId) {
 function closeModal() {
     modal.classList.remove('visible');
 }
+// ----------------------------------------------------------------------
 
 
 // ----------------------------------------------------------------------
@@ -353,8 +349,6 @@ function closeModal() {
 // ----------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', async () => {
-    
-    // ❌ BLOQUEO DE SESIÓN ELIMINADO. El dashboard se carga inmediatamente.
     
     // Carga los datos de Supabase al iniciar
     fetchPedidos();
