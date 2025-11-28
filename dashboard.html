@@ -5,86 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Control - WhatsApp API</title>
     
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
-            background-color: #f4f7f6; 
-            color: #333;
-        }
-        /* El contenido principal está oculto por defecto por seguridad */
-        #dashboard-content {
-            display: none; 
-        }
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 3px solid #00a896; 
-            padding-bottom: 15px; 
-            margin-bottom: 30px; 
-        }
-        h1 { 
-            color: #2c3e50; 
-            font-size: 2em; 
-            margin: 0;
-        }
-        .data-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; 
-            gap: 25px;
-        }
-        .card { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-            border-left: 5px solid #00a896; 
-        }
-        h3 { 
-            color: #00a896; 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            padding: 8px 0;
-            border-bottom: 1px dotted #ccc;
-            font-size: 0.95em;
-        }
-        #logout-btn { 
-            background-color: #e74c3c; 
-            color: white; 
-            padding: 10px 15px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        #logout-btn:hover { 
-            background-color: #c0392b; 
-        }
-        #status-bar {
-            margin-bottom: 25px;
-            padding: 10px;
-            background-color: #ecf0f1;
-            border-radius: 5px;
-            font-weight: 600;
-        }
-        .metric {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
 
-    <div id="dashboard-content" style="display: none;">
+    <div id="dashboard-content">
     
         <div class="header">
             <h1>📊 Panel de Control del Chatbot</h1>
@@ -95,7 +20,7 @@
             Estado: <span id="message">Verificando sesión...</span>
         </div>
 
-        <div class="card" style="grid-column: 1 / -1; margin-bottom: 30px; border-left-color: #3498db;">
+        <div class="card" style="border-left-color: #3498db;">
             <h3>📈 Métricas Clave</h3>
             <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #3498db;">...</span></p>
         </div>
