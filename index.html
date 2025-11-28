@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Panel</title>
+
+    <style>
+        /* Estilos para centrar el formulario y hacerlo legible */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+        }
+        .login-container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            width: 320px; 
+            transition: all 0.3s ease;
+        }
+        h2 { 
+            text-align: center; 
+            color: #1877f2; /* Color similar a Supabase/Meta */
+            margin-bottom: 25px;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            color: #333; 
+            font-weight: 600;
+        }
+        input[type="email"], input[type="password"] { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-size: 16px;
+        }
+        button { 
+            background-color: #1877f2; 
+            color: white; 
+            padding: 15px 20px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 17px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button:hover { 
+            background-color: #166fe5; 
+        }
+        #message { 
+            color: #d9534f; /* Rojo para errores */
+            text-align: center; 
+            margin-top: 15px; 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="login-container">
+        <h2>Acceso al Panel</h2>
+        
+        <form id="login-form">
+            
+            <label for="email">Correo Electrónico</label>
+            <input 
+                type="email" 
+                placeholder="Ingresa tu Correo" 
+                name="email" 
+                id="email" 
+                required
+            >
+
+            <label for="password">Contraseña</label>
+            <input 
+                type="password" 
+                placeholder="Ingresa tu Contraseña" 
+                name="password" 
+                id="password" 
+                required
+            >
+
+            <button type="submit" id="login-btn">Iniciar Sesión</button>
+            
+            <p id="message"></p>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
