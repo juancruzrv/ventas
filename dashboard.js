@@ -345,13 +345,13 @@ function closeModal() {
 
 /**
  * Función que maneja el cierre de sesión, redireccionando a index.html.
+ * ALERTA ELIMINADA.
  */
 function handleLogout() {
     console.log(`Cerrando sesión para ${loggedUser}...`);
     // Aquí se integraría la lógica de Supabase para cerrar la sesión (supabase.auth.signOut())
     
     // REDIRECCIONAR al login (index.html)
-    alert("¡Sesión cerrada! Redireccionando a la página de inicio de sesión.");
     window.location.href = 'index.html'; 
 }
 
