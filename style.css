@@ -64,10 +64,6 @@ li {
 }
 
 /* Animación de Neón al hacer clic */
-.login-container.active-neon {
-    animation: neon-pulse 0.8s ease-out forwards; 
-}
-
 @keyframes neon-pulse {
     0% {
         box-shadow: 0 0 30px 10px rgba(197, 1, 226, 0.7);
@@ -130,12 +126,8 @@ button:hover {
 }
 
 /* ======================================= */
-/* 3. Estilos del Dashboard (dashboard.html) */
+/* 3. Estilos del Dashboard */
 /* ======================================= */
-#dashboard-content {
-    /* En la versión final se controlará con JS */
-    /* display: none; */ 
-}
 .header { 
     display: flex; 
     justify-content: space-between; 
@@ -146,14 +138,13 @@ button:hover {
 }
 .data-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Una sola columna para Pedidos */
+    grid-template-columns: 1fr; 
     gap: 25px;
 }
 .card { 
     background: #1e1e1e; 
     padding: 25px; 
     border-radius: 8px; 
-    /* Bordes y sombras eliminados para contenedores principales (Diseño Minimalista) */
     box-shadow: none; 
 }
 #logout-btn { 
@@ -183,41 +174,41 @@ button:hover {
 }
 
 /* ======================================= */
-/* 4. Estilos de Gestión, Filtros y Modal (NUEVOS) */
+/* 4. Estilos de Listado de Pedidos y Neón Lateral */
 /* ======================================= */
 
-/* Contenedor principal de los pedidos */
 #pedidos-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Mostrar pedidos en cuadrícula adaptable */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 15px;
     padding: 0;
     list-style: none;
 }
 
-/* Estilo base para cada contenedor de pedido individual (NEÓN LATERAL) */
+/* Estilo base para cada contenedor de pedido individual */
 .pedido-item {
     background: #252525;
     padding: 15px;
     border-radius: 6px;
-    border-left: 5px solid transparent; /* Mantiene el espacio para el borde sólido */
-    box-shadow: none; /* Asegura que no haya sombra general */
+    border-left: 5px solid transparent; 
+    box-shadow: none; 
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative; 
-    overflow: hidden; /* Importante para contener el pseudo-elemento */
+    overflow: hidden; 
 }
 
-/* Pseudo-elemento para el resplandor neón lateral */
+/* Pseudo-elemento para el resplandor neón lateral (CORREGIDO: Sombra centrada) */
 .pedido-item::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-    width: 10px; /* Ancho del resplandor */
+    width: 5px; /* Ancho del elemento */
     height: 100%;
-    pointer-events: none; /* Asegura que no interfiera con el clic */
+    pointer-events: none; 
     transition: box-shadow 0.2s ease;
+    background: transparent; 
 }
 
 /* Efecto hover */
@@ -225,17 +216,18 @@ button:hover {
     transform: translateY(-2px);
 }
 
-/* Colores de Borde y Efecto Neón basados en el Estado (Semaforo Neón) */
+/* Colores de Borde y Efecto Neón basados en el Estado */
 
 /* PENDIENTE */
 .estado-pendiente {
     border-left-color: #f39c12; 
 }
 .estado-pendiente::before {
-    box-shadow: 0 0 10px 3px rgba(243, 156, 18, 0.9); /* Sombra 2D pura */
+    /* CORRECCIÓN: Ajuste de sombra para evitar el espacio negro */
+    box-shadow: 0 0 8px 1px rgba(243, 156, 18, 0.9); 
 }
 .estado-pendiente:hover::before {
-    box-shadow: 0 0 15px 5px rgba(243, 156, 18, 1);
+    box-shadow: 0 0 12px 3px rgba(243, 156, 18, 1);
 }
 
 /* COMPLETADA */
@@ -243,10 +235,10 @@ button:hover {
     border-left-color: #2ecc71; 
 }
 .estado-completada::before {
-    box-shadow: 0 0 10px 3px rgba(46, 204, 113, 0.9);
+    box-shadow: 0 0 8px 1px rgba(46, 204, 113, 0.9);
 }
 .estado-completada:hover::before {
-    box-shadow: 0 0 15px 5px rgba(46, 204, 113, 1);
+    box-shadow: 0 0 12px 3px rgba(46, 204, 113, 1);
 }
 
 /* CANCELADA */
@@ -254,22 +246,25 @@ button:hover {
     border-left-color: #e74c3c; 
 }
 .estado-cancelada::before {
-    box-shadow: 0 0 10px 3px rgba(231, 76, 60, 0.9);
+    box-shadow: 0 0 8px 1px rgba(231, 76, 60, 0.9);
 }
 .estado-cancelada:hover::before {
-    box-shadow: 0 0 15px 5px rgba(231, 76, 60, 1);
+    box-shadow: 0 0 12px 3px rgba(231, 76, 60, 1);
 }
 
 
-/* Estilos para el nuevo sistema de Checkbox Filtro */
+/* ======================================= */
+/* 5. Estilos de Checkboxes de Filtro (CORREGIDOS) */
+/* ======================================= */
 #filter-container {
     margin-bottom: 20px;
     display: flex;
-    gap: 20px; /* Separación más grande */
+    gap: 20px;
     flex-wrap: wrap;
     align-items: center;
 }
 
+/* El elemento <label> ahora es el elemento visual */
 .filter-checkbox-label {
     position: relative;
     cursor: pointer;
@@ -290,7 +285,7 @@ button:hover {
     width: 0;
 }
 
-/* Estilo del recuadro personalizado (El "Neón") */
+/* Estilo del recuadro personalizado (::before del label) */
 .filter-checkbox-label::before {
     content: '';
     position: absolute;
@@ -305,43 +300,46 @@ button:hover {
     transition: all 0.2s ease-in-out;
 }
 
-/* Estilo del checkmark (palomita) */
+/* Estilo del checkmark (palomita) (::after del label) */
 .filter-checkbox-label::after {
     content: '✓'; 
     position: absolute;
     top: 50%;
     left: 4px;
-    transform: translateY(-50%) scale(0); /* Oculto por defecto */
+    transform: translateY(-50%) scale(0); 
     font-size: 16px;
-    color: #00fff2; /* Color de la palomita */
+    color: #00fff2; 
     font-weight: bold;
     transition: transform 0.2s ease-in-out;
 }
 
-/* Estado: Checked */
+/* Estado: Checked - Se usa el selector de Hermano Adyacente (+) */
+/* Este selector ahora funciona porque el input y el label son hermanos */
 .filter-checkbox:checked + .filter-checkbox-label::before {
-    border-color: #c501e2; /* Borde neón brillante */
-    box-shadow: 0 0 8px rgba(197, 1, 226, 0.8); /* Brillo neón */
+    border-color: #c501e2; 
+    box-shadow: 0 0 8px rgba(197, 1, 226, 0.8); 
     background-color: #333;
 }
 .filter-checkbox:checked + .filter-checkbox-label::after {
-    transform: translateY(-50%) scale(1); /* Muestra la palomita */
+    transform: translateY(-50%) scale(1); 
 }
 
-/* Estilos del Modal */
+/* ======================================= */
+/* 6. Estilos del Modal y Botones (CORREGIDOS) */
+/* ======================================= */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Fondo semi-transparente oscuro */
+    background-color: rgba(0, 0, 0, 0.8); 
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     opacity: 0;
-    visibility: hidden; /* Oculto por defecto */
+    visibility: hidden; 
     transition: opacity 0.3s ease;
 }
 .modal-overlay.visible {
@@ -354,22 +352,10 @@ button:hover {
     border-radius: 10px;
     width: 90%;
     max-width: 800px;
-    box-shadow: 0 0 40px rgba(197, 1, 226, 0.7); /* Sombra neón */
+    box-shadow: 0 0 40px rgba(197, 1, 226, 0.7); 
     border: 2px solid #c501e2;
     max-height: 90vh;
     overflow-y: auto;
-}
-.modal-content h3 {
-    color: #00fff2; /* Título secundario neón */
-    margin-top: 15px;
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #c501e2;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
 }
 .modal-close {
     background: none;
@@ -378,16 +364,6 @@ button:hover {
     font-size: 24px;
     cursor: pointer;
     font-weight: bold;
-}
-.log-item {
-    padding: 8px 0;
-    border-bottom: 1px dotted #333;
-}
-.log-item span {
-    display: block;
-    font-size: 0.9em;
-    margin-top: 5px;
-    color: #e0e0e0;
 }
 .log-cliente {
     font-weight: bold;
@@ -398,7 +374,14 @@ button:hover {
     color: #c501e2;
 }
 
-/* --- Estilos para los botones de acción del Modal (GESTIÓN) --- */
+/* Contenedor de botones (FLEXBOX para Responsividad) */
+#action-buttons {
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* CORREGIDO: Permite que se envuelvan en pantallas pequeñas */
+}
+
 .action-btn {
     padding: 10px 15px;
     border: none;
@@ -406,11 +389,15 @@ button:hover {
     cursor: pointer;
     font-weight: 700;
     transition: all 0.2s ease;
-    width: 33%;
+    width: auto; 
+    flex-grow: 1; /* CORREGIDO: Toma el espacio disponible */
+    min-width: 100px; 
+    text-align: center;
 }
 
+/* Colores */
 .action-btn.assign-style {
-    background-color: #3498db; /* Azul para Asignar */
+    background-color: #3498db; 
     color: white;
 }
 .action-btn.assign-style:hover {
@@ -419,7 +406,7 @@ button:hover {
 }
 
 .action-btn.complete-style {
-    background-color: #2ecc71; /* Verde para Completar */
+    background-color: #2ecc71; /* Verde */
     color: white;
 }
 .action-btn.complete-style:hover {
@@ -428,7 +415,7 @@ button:hover {
 }
 
 .action-btn.cancel-style {
-    background-color: #e74c3c; /* Rojo para Cancelar */
+    background-color: #e74c3c; /* Rojo */
     color: white;
 }
 .action-btn.cancel-style:hover {
@@ -436,24 +423,15 @@ button:hover {
     box-shadow: 0 0 10px rgba(231, 76, 60, 0.7);
 }
 
-/* Ocultar botón de Asignación en pedidos Completados/Cancelados */
 .action-btn.hidden {
     display: none !important;
 }
 
 /* ======================================= */
-/* 5. Media Queries (Responsiveness) */
+/* 7. Media Queries (Responsiveness) */
 /* ======================================= */
 @media (max-width: 768px) {
-    .login-container {
-        width: 90%; 
-    }
-    .data-grid {
-        grid-template-columns: 1fr; 
-    }
-    .card {
-        padding: 20px; 
-    }
+    /* ... (resto de estilos responsivos) ... */
     .header {
         flex-direction: column;
         align-items: flex-start;
@@ -461,12 +439,13 @@ button:hover {
     #logout-btn {
         margin-top: 15px;
     }
+    /* CORRECCIÓN: Apilamiento de botones en móvil */
+    #action-buttons {
+        flex-direction: column; 
+        gap: 10px;
+    }
     .action-btn {
         width: 100%;
-        margin-bottom: 10px;
-    }
-    #action-buttons {
-        flex-direction: column;
-        gap: 0;
+        min-width: unset;
     }
 }
