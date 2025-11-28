@@ -1,5 +1,5 @@
 /* Importación de la fuente moderna y sobria (Roboto) */
-@import url('https://fonts.com/css2?family=Roboto:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
 /* ======================================= */
 /* 1. Estilos Globales (Modo Oscuro) */
@@ -54,7 +54,7 @@ li {
     padding: 30px; 
     border-radius: 10px; 
     
-    /* MODIFICACIÓN: Borde sólido de neón */
+    /* Borde sólido de neón visible */
     border: 2px solid #c501e2; 
     
     box-shadow: 0 0 30px 10px rgba(197, 1, 226, 0.7); /* Sombra Neón más visible */
@@ -145,20 +145,16 @@ button:hover {
 }
 .data-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; 
+    grid-template-columns: 1fr; /* Una sola columna para Pedidos */
     gap: 25px;
 }
 .card { 
     background: #1e1e1e; 
     padding: 25px; 
     border-radius: 8px; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
-    border-left: 5px solid #c501e2; 
+    /* Bordes de color eliminados para contenedores principales */
+    box-shadow: none; 
 }
-.data-grid .card:nth-child(2) {
-    border-left-color: #00fff2; 
-}
-
 #logout-btn { 
     background-color: #e74c3c; 
     color: white; 
@@ -186,7 +182,7 @@ button:hover {
 }
 
 /* ======================================= */
-/* 4. Estilos de Gestión y Filtros de Pedidos */
+/* 4. Estilos de Gestión, Filtros y Modal (NUEVOS) */
 /* ======================================= */
 
 /* Contenedor principal de los pedidos */
@@ -195,10 +191,10 @@ button:hover {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Mostrar pedidos en cuadrícula adaptable */
     gap: 15px;
     padding: 0;
-    list-style: none; /* Asegurar que no haya viñetas */
+    list-style: none;
 }
 
-/* Estilo base para cada contenedor de pedido */
+/* Estilo base para cada contenedor de pedido individual */
 .pedido-item {
     background: #252525;
     padding: 15px;
@@ -212,6 +208,7 @@ button:hover {
 /* Efecto hover */
 .pedido-item:hover {
     box-shadow: 0 0 10px rgba(197, 1, 226, 0.4);
+    transform: translateY(-2px);
 }
 
 /* Colores de Borde basados en el Estado (Semaforo Neón) */
@@ -246,6 +243,76 @@ button:hover {
     color: white;
     border-color: #e327ff;
     box-shadow: 0 0 5px rgba(197, 1, 226, 0.7);
+}
+
+/* Estilos del Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo semi-transparente oscuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden; /* Oculto por defecto */
+    transition: opacity 0.3s ease;
+}
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+.modal-content {
+    background-color: #1e1e1e; 
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 0 40px rgba(197, 1, 226, 0.7); /* Sombra neón */
+    border: 2px solid #c501e2;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal-content h3 {
+    color: #00fff2; /* Título secundario neón */
+    margin-top: 15px;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #c501e2;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.modal-close {
+    background: none;
+    border: none;
+    color: #c501e2;
+    font-size: 24px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.log-item {
+    padding: 8px 0;
+    border-bottom: 1px dotted #333;
+}
+.log-item span {
+    display: block;
+    font-size: 0.9em;
+    margin-top: 5px;
+    color: #e0e0e0;
+}
+.log-cliente {
+    font-weight: bold;
+    color: #00fff2;
+}
+.log-bot {
+    font-weight: bold;
+    color: #c501e2;
 }
 
 
