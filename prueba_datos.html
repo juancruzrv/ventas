@@ -42,17 +42,14 @@
                 
                 <div id="filter-container">
                     
-                    <label class="filter-checkbox-label">
-                        <input type="checkbox" class="filter-checkbox" value="pendiente" checked> Pendientes
-                    </label>
+                    <input type="checkbox" id="filter-pendiente" class="filter-checkbox" value="pendiente" checked> 
+                    <label for="filter-pendiente" class="filter-checkbox-label">Pendientes</label>
 
-                    <label class="filter-checkbox-label">
-                        <input type="checkbox" class="filter-checkbox" value="completada" checked> Completadas
-                    </label>
+                    <input type="checkbox" id="filter-completada" class="filter-checkbox" value="completada" checked> 
+                    <label for="filter-completada" class="filter-checkbox-label">Completadas</label>
                     
-                    <label class="filter-checkbox-label">
-                        <input type="checkbox" class="filter-checkbox" value="cancelada" checked> Canceladas
-                    </label>
+                    <input type="checkbox" id="filter-cancelada" class="filter-checkbox" value="cancelada" checked> 
+                    <label for="filter-cancelada" class="filter-checkbox-label">Canceladas</label>
                 </div>
 
                 <div id="pedidos-list">
@@ -77,7 +74,7 @@
                 Última Acción: <strong id="detail-last-action-date"></strong>
             </p>
 
-            <div id="action-buttons" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div id="action-buttons">
                 <button id="assign-btn" class="action-btn assign-style" onclick="handleAssignClick()">Tomar Asignación</button>
                 <button id="complete-btn" class="action-btn complete-style" onclick="actualizarEstado(currentPedidoId, 'Completada')">Marcar como Completado</button>
                 <button id="cancel-btn" class="action-btn cancel-style" onclick="actualizarEstado(currentPedidoId, 'Cancelada')">Marcar como Cancelado</button>
@@ -108,7 +105,7 @@
         let loggedUser = "Usuario A"; // Inicialmente Usuario A
 
         // ----------------------------------------------------------------------
-        // 1. DATOS SIMULADOS (JSON) - AHORA CON ASIGNACIÓN
+        // 1. DATOS SIMULADOS (JSON)
         // ----------------------------------------------------------------------
 
         let mockData = [
@@ -177,8 +174,6 @@
 
         /**
          * Asigna el pedido al usuario logueado.
-         * @param {number} id - ID del pedido.
-         * @param {string} usuario - Nombre del usuario logueado.
          */
         function asignarPedido(id, usuario) {
             const pedido = mockData.find(p => p.id === id);
@@ -203,22 +198,22 @@
 
         /**
          * Actualiza el estado de un pedido.
-         * @param {number} id - ID del pedido.
-         * @param {string} nuevoEstado - Nuevo estado ('Completada' o 'Cancelada').
          */
         function actualizarEstado(id, nuevoEstado) {
             const pedido = mockData.find(p => p.id === id);
             
             if (pedido && pedido.estado === 'Pendiente') {
+                
+                // Permitir finalizar si el usuario lo tiene asignado O si no está asignado a nadie
                 if (pedido.asignado_a !== loggedUser && pedido.asignado_a !== 'N/A') {
                     alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}.`);
                     return;
                 }
                 
-                // Si está pendiente y el usuario actual lo tiene asignado (o no está asignado a nadie)
                 pedido.estado = nuevoEstado;
                 pedido.fecha_ultima_accion = new Date().toISOString();
-                pedido.asignado_a = pedido.asignado_a !== 'N/A' ? pedido.asignado_a : loggedUser; // Asignarlo si no lo estaba
+                // Si no estaba asignado, se asigna al usuario que lo finaliza
+                pedido.asignado_a = pedido.asignado_a !== 'N/A' ? pedido.asignado_a : loggedUser; 
                 
                 filterPedidos();
                 closeModal();
@@ -287,6 +282,7 @@
             let filteredData;
 
             if (activeFilters.length === 0) {
+                // Si no hay filtros seleccionados, mostramos todos los pedidos.
                 filteredData = mockData; 
             } else {
                 filteredData = mockData.filter(p => {
@@ -306,7 +302,7 @@
         }
 
         // ----------------------------------------------------------------------
-        // 4. FUNCIONALIDAD DEL MODAL (ACTUALIZADO PARA GESTIÓN)
+        // 4. FUNCIONALIDAD DEL MODAL
         // ----------------------------------------------------------------------
         
         function showDetail(pedidoId) {
@@ -338,21 +334,22 @@
                 completeBtn.classList.remove('hidden');
                 cancelBtn.classList.remove('hidden');
                 
-                if (pedido.asignado_a === 'N/A') {
+                // Si no está asignado O está asignado al usuario logueado
+                if (pedido.asignado_a === 'N/A' || pedido.asignado_a === loggedUser) {
                     assignBtn.classList.remove('hidden');
                     assignBtn.disabled = false;
-                    // Los botones de Finalización están deshabilitados hasta que alguien lo toma (opcional)
-                    // completeBtn.disabled = true;
-                    // cancelBtn.disabled = true;
-
-                } else if (pedido.asignado_a === loggedUser) {
-                    assignBtn.classList.add('hidden'); // Ocultar si ya lo tiene el usuario logueado
                     completeBtn.disabled = false;
                     cancelBtn.disabled = false;
+
+                    if (pedido.asignado_a === loggedUser) {
+                        assignBtn.classList.add('hidden'); // Ocultar si ya lo tiene el usuario logueado
+                    }
+
                 } else {
+                    // Asignado a OTRA PERSONA
                     assignBtn.classList.add('hidden'); 
-                    completeBtn.disabled = true;
-                    cancelBtn.disabled = true;
+                    completeBtn.disabled = true; // Deshabilitar si no es su asignación
+                    cancelBtn.disabled = true;  // Deshabilitar si no es su asignación
                 }
             } else {
                 // Si ya está Completada o Cancelada
@@ -398,14 +395,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             const userSelect = document.getElementById('logged-user-select');
             
-            // Asignar el usuario inicial al cargar
             loggedUser = userSelect.value;
 
-            // Listener para el selector de usuario
             userSelect.addEventListener('change', (e) => {
                 loggedUser = e.target.value;
                 document.getElementById('message').textContent = `Usuario logueado cambiado a: ${loggedUser}.`;
-                // Refrescar el detalle si está abierto para actualizar los permisos
                 if(currentPedidoId !== null && modal.classList.contains('visible')) {
                     showDetail(currentPedidoId);
                 }
@@ -414,6 +408,7 @@
 
             renderPedidos(mockData); 
             
+            // Listener para los checkboxes de filtro
             document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', filterPedidos);
             });
