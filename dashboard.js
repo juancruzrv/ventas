@@ -340,29 +340,12 @@ function closeModal() {
 }
 
 // ----------------------------------------------------------------------
-// 6. FUNCIONALIDAD DE CIERRE DE SESIÓN
-// ----------------------------------------------------------------------
-
-/**
- * Función que maneja el cierre de sesión, redireccionando a index.html.
- * ALERTA ELIMINADA.
- */
-function handleLogout() {
-    console.log(`Cerrando sesión para ${loggedUser}...`);
-    // Aquí se integraría la lógica de Supabase para cerrar la sesión (supabase.auth.signOut())
-    
-    // REDIRECCIONAR al login (index.html)
-    window.location.href = 'index.html'; 
-}
-
-
-// ----------------------------------------------------------------------
-// 7. INICIALIZACIÓN Y LISTENERS
+// 6. INICIALIZACIÓN Y LISTENERS
 // ----------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
     const userSelect = document.getElementById('logged-user-select');
-    const logoutBtn = document.getElementById('logout-btn'); 
+    // El botón logout ya no necesita un listener aquí porque se maneja en el HTML
 
     loggedUser = userSelect.value;
 
@@ -373,9 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showDetail(currentPedidoId);
         }
     });
-    
-    // Enlaza el botón de cerrar sesión
-    logoutBtn.addEventListener('click', handleLogout); 
 
     // Carga los datos de Supabase al iniciar
     fetchPedidos();
