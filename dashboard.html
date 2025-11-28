@@ -12,11 +12,15 @@
             background-color: #f4f7f6; 
             color: #333;
         }
+        /* El contenido principal está oculto por defecto por seguridad */
+        #dashboard-content {
+            display: none; 
+        }
         .header { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            border-bottom: 3px solid #00a896; /* Color de acento */
+            border-bottom: 3px solid #00a896; 
             padding-bottom: 15px; 
             margin-bottom: 30px; 
         }
@@ -27,7 +31,7 @@
         }
         .data-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Dos columnas para las listas de datos */
+            grid-template-columns: 1fr 1fr; 
             gap: 25px;
         }
         .card { 
@@ -80,40 +84,41 @@
 </head>
 <body>
 
-    <div class="header">
-        <h1>📊 Panel de Control del Chatbot</h1>
-        <button id="logout-btn">Cerrar Sesión</button>
-    </div>
+    <div id="dashboard-content" style="display: none;">
     
-    <div id="status-bar">
-        Estado: <span id="message">Verificando sesión...</span>
-    </div>
-
-    <div class="card" style="grid-column: 1 / -1; margin-bottom: 30px; border-left-color: #3498db;">
-        <h3>📈 Métricas Clave</h3>
-        <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #3498db;">...</span></p>
-    </div>
-
-    <div class="data-grid">
-        
-        <div class="card">
-            <h3>🛒 Últimos Pedidos</h3>
-            <ul id="pedidos-list">
-                <li>Cargando pedidos...</li>
-            </ul>
+        <div class="header">
+            <h1>📊 Panel de Control del Chatbot</h1>
+            <button id="logout-btn">Cerrar Sesión</button>
         </div>
         
-        <div class="card" style="border-left-color: #f39c12;">
-            <h3>💬 Logs de Conversación Reciente</h3>
-            <ul id="conversacion-list">
-                <li>Cargando logs de conversación...</li>
-            </ul>
+        <div id="status-bar">
+            Estado: <span id="message">Verificando sesión...</span>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1; margin-bottom: 30px; border-left-color: #3498db;">
+            <h3>📈 Métricas Clave</h3>
+            <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #3498db;">...</span></p>
+        </div>
+
+        <div class="data-grid">
+            
+            <div class="card">
+                <h3>🛒 Últimos Pedidos</h3>
+                <ul id="pedidos-list">
+                    <li>Cargando pedidos...</li>
+                </ul>
+            </div>
+            
+            <div class="card" style="border-left-color: #f39c12;">
+                <h3>💬 Logs de Conversación Reciente</h3>
+                <ul id="conversacion-list">
+                    <li>Cargando logs de conversación...</li>
+                </ul>
+            </div>
+            
         </div>
         
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+    </div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>
