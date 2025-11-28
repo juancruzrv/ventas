@@ -1,201 +1,140 @@
-// ===============================================
-// dashboard.js: Lógica de Carga de Datos y Realtime
-// (Ahora usando las clases CSS de style.css)
-// ===============================================
+// =================================================================
+// dashboard.js - LÓGICA CENTRAL Y DE DASHBOARD (CLAVES INSERTADAS)
+// =================================================================
 
-function initDashboard(supabase) {
-    console.log("✅ Sesión activa. Iniciando carga de datos.");
-    loadInteractions(supabase);
-    subscribeToInteractions(supabase);
-}
+// 🔑 CLAVES DE SUPABASE INSERTADAS:
+const SUPABASE_URL = 'https://hppmetemxodplpsidmlv.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcG1ldGVteG9kcGxwc2lkbWx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzMDI5NzgsImV4cCI6MjA3OTg3ODk3OH0.ZpyI1ANOY39EHpAjdHZjv6WHwLcb7tvB1Ss5njxMHqM';
 
 /**
- * Carga y muestra los datos de interacciones desde la tabla 'interacciones'.
+ * Inicializa el cliente de Supabase y lo hace accesible globalmente.
  */
-async function loadInteractions(supabase) {
-    const { data, error } = await supabase
-        .from('interacciones') 
-        .select('*') 
-        .order('fecha_creacion', { ascending: false }) 
-        .limit(10); 
+function initializeSupabase() {
+    // No necesita verificación aquí, ya que las claves se insertaron
+    window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return window.supabase;
+}
 
-    if (error) {
-        console.error("Error al cargar interacciones:", error);
-        document.getElementById('chat-data').innerHTML = `<li>Error: ${error.message}.</li>`;
-        return;
-    }
+// Llama a la inicialización de Supabase
+const supabaseClient = initializeSupabase();
+// -------------------------------------------------------------------
 
-    const chatList = document.getElementById('chat-data');
-    chatList.innerHTML = data.length === 0 ? '<li>No hay interacciones registradas.</li>' : ''; 
 
-    data.forEach(item => {
-        const listItem = document.createElement('li');
-        const date = new Date(item.fecha_creacion).toLocaleTimeString('es-ES', { 
-            hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' 
-        });
+// =================================================================
+// LÓGICA ESPECÍFICA DEL DASHBOARD (solo si estamos en dashboard.html)
+// =================================================================
+
+// Solo ejecuta la lógica del dashboard si los elementos existen (para evitar errores en test-data.html)
+if (document.getElementById('chat-data')) { 
+    
+    // Función principal para cargar y renderizar las interacciones
+    async function loadInteractions() {
+        if (!supabaseClient) {
+            document.getElementById('chat-data').innerHTML = '<li>Error: Supabase no está configurado.</li>';
+            return;
+        }
+
+        const { data: interacciones, error } = await supabaseClient
+            .from('interacciones')
+            .select('*')
+            .order('timestamp', { ascending: false }); 
+
+        const interactionList = document.getElementById('chat-data');
+        interactionList.innerHTML = '';
         
-        // Mapeo a la clase CSS
-        const typeClass = `interaction-${item.tipo_interaccion || 'pregunta'}`;
+        // Asumiendo que tienes un elemento con id 'interactions-summary' en dashboard.html
+        const summaryElement = document.getElementById('interactions-summary') || document.createElement('div');
         
-        listItem.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+        if (error) {
+            summaryElement.innerHTML = 'Error al cargar datos: ' + error.message;
+            return;
+        }
+
+        if (interacciones.length === 0) {
+            summaryElement.innerHTML = '<p>No hay interacciones registradas. ¡Usa la página de prueba para insertar algunas!</p>';
+        }
+
+        // 1. Renderizar la lista
+        interacciones.forEach(interaccion => {
+            const listItem = document.createElement('li');
+            const date = new Date(interaccion.timestamp).toLocaleString('es-AR');
+            const typeClass = `interaction-${interaccion.interaction_type}`;
+            
+            listItem.innerHTML = `
                 <div>
-                    <strong>Teléfono:</strong> ${item.telefono_cliente} | 
-                    <strong>Tipo:</strong> <span class="${typeClass}">${(item.tipo_interaccion || 'N/A').toUpperCase()}</span>
+                    <strong class="${typeClass}">${interaccion.interaction_type.toUpperCase()}</strong>
+                    - Cliente: ${interaccion.client_phone} (${date})
                     <br>
-                    <em>Mensaje: "${item.mensaje_recibido ? item.mensaje_recibido.substring(0, 50) : 'Sin mensaje'}..."</em> (${date})
+                    <span style="color: var(--text-muted);">${interaccion.summary || 'Sin resumen'}</span>
                 </div>
-                <button onclick="loadChatHistory('${item.telefono_cliente}')" style="background-color: #075E54; color: white;">
-                    Ver Chat
-                </button>
-            </div>
-        `;
-        chatList.appendChild(listItem);
-    });
-
-    updateSummary(data);
-}
-
-/**
- * Cuenta y actualiza las métricas del resumen.
- */
-function updateSummary(data) {
-    const orders = data.filter(item => item.tipo_interaccion === 'pedido').length;
-    const sales = data.filter(item => item.tipo_interaccion === 'venta').length;
-    const recom = data.filter(item => item.tipo_interaccion === 'recomendacion').length;
-
-    document.getElementById('orders-count').textContent = orders;
-    document.getElementById('sales-count').textContent = sales;
-    document.getElementById('recom-count').textContent = recom;
-}
-
-
-/**
- * Escucha cambios en la tabla 'interacciones' para actualizar la vista en tiempo real.
- */
-function subscribeToInteractions(supabase) {
-    supabase
-        .channel('dashboard_changes') 
-        .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'interacciones' },
-            () => {
-                console.log('🔔 ¡Nueva Interacción detectada! Recargando datos.');
-                loadInteractions(supabase); 
-            }
-        )
-        .subscribe();
-    
-    console.log("👂 Suscrito a cambios en tiempo real.");
-}
-
-// ===============================================
-// Funciones de Modal y Historial de Chat
-// ===============================================
-
-/**
- * 📞 Carga el historial completo de mensajes para un teléfono específico.
- */
-async function loadChatHistory(phone) {
-    document.getElementById('modal-client-phone').textContent = phone;
-    
-    // Idealmente, en el futuro harás un JOIN con la tabla de clientes aquí.
-    const { data, error } = await _supabase
-        .from('interacciones') 
-        // Asumimos que los mensajes de respuesta del bot estarán en una columna futura 'respuesta_bot'
-        .select('mensaje_recibido, respuesta_bot, fecha_creacion') 
-        .eq('telefono_cliente', phone) 
-        .order('fecha_creacion', { ascending: true }); 
-
-    const chatHistoryDiv = document.getElementById('chat-history');
-    chatHistoryDiv.innerHTML = '';
-    
-    if (error) {
-        chatHistoryDiv.innerHTML = `<p style="color:red; text-align: center;">Error al cargar historial: ${error.message}</p>`;
-        openChatModal(); 
-        return;
-    }
-
-    if (data.length === 0) {
-        chatHistoryDiv.innerHTML = '<p style="text-align: center;">No hay historial registrado para este cliente.</p>';
-    } else {
-        data.forEach(item => {
-            // Mostramos el mensaje del cliente (asumimos que todo mensaje_recibido es del cliente)
-            if (item.mensaje_recibido) {
-                appendMessage(chatHistoryDiv, item.mensaje_recibido, item.fecha_creacion, true); // true = cliente
-            }
-            // FUTURO: Si tu tabla tuviera una columna 'respuesta_bot', la mostrarías aquí
-            if (item.respuesta_bot) {
-                appendMessage(chatHistoryDiv, item.respuesta_bot, item.fecha_creacion, false); // false = bot
-            }
+                <button onclick="viewChat('${interaccion.id}')">Ver Chat</button>
+            `;
+            interactionList.appendChild(listItem);
         });
-        chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; 
-    }
 
-    openChatModal();
-}
-
-/**
- * Función auxiliar para crear y añadir la burbuja de chat.
- */
-function appendMessage(container, message, date, isClient) {
-    const messageBubble = document.createElement('div');
-    messageBubble.classList.add('message-bubble', isClient ? 'client-message' : 'bot-message');
-    
-    const time = new Date(date).toLocaleTimeString('es-ES', { 
-        hour: '2-digit', minute: '2-digit'
-    });
-    
-    messageBubble.innerHTML = `
-        ${message}
-        <span class="message-time">${time}</span>
-    `;
-    container.appendChild(messageBubble);
-}
-
-
-/**
- * Abre el modal del chat.
- */
-function openChatModal() {
-    document.getElementById('chat-modal').style.display = 'block';
-}
-
-/**
- * Cierra el modal del chat.
- */
-function closeChatModal() {
-    document.getElementById('chat-modal').style.display = 'none';
-}
-
-// Inicialización: Añadir el listener para cerrar el modal
-document.addEventListener('DOMContentLoaded', () => {
-    // Escucha el formulario de login (solo en index.html)
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (typeof _supabase !== 'undefined') { 
-                loginUser(_supabase);
-            }
-        });
-    }
-
-    const modal = document.getElementById('chat-modal');
-    const closeBtn = document.getElementById('close-modal');
-
-    if (closeBtn) {
-        closeBtn.onclick = function() {
-            closeChatModal();
+        // 2. Renderizar el resumen (Conteo de ejemplo)
+        const counts = interacciones.reduce((acc, curr) => {
+            acc[curr.interaction_type] = (acc[curr.interaction_type] || 0) + 1;
+            return acc;
+        }, {});
+        
+        // Si tu dashboard.html tiene IDs específicos para los contadores (orders-count, sales-count, recom-count):
+        if (document.getElementById('orders-count')) {
+            document.getElementById('orders-count').textContent = counts['pedido'] || 0;
+            document.getElementById('sales-count').textContent = counts['venta'] || 0;
+            document.getElementById('recom-count').textContent = counts['pregunta'] || 0;
         }
     }
-    
-    // Cerrar al hacer click fuera del modal
-    if (modal) {
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeChatModal();
-            }
+
+
+    // Función para mostrar el modal de chat
+    window.viewChat = async (interactionId) => {
+        if (!supabaseClient) return;
+
+        const { data: interaccion, error } = await supabaseClient
+            .from('interacciones')
+            .select('chat_history, client_phone')
+            .eq('id', interactionId)
+            .single();
+
+        if (error || !interaccion) {
+            console.error('Error al cargar chat:', error);
+            document.getElementById('modal-client-phone').textContent = 'Error de Carga';
+            return;
         }
-    }
-});
+
+        const chatHistoryElement = document.getElementById('chat-history');
+        chatHistoryElement.innerHTML = '';
+        document.getElementById('modal-client-phone').textContent = interaccion.client_phone;
+        
+        // Renderizar burbujas de chat
+        interaccion.chat_history.forEach(chat => {
+            const bubble = document.createElement('div');
+            const isClient = chat.role === 'client';
+            const time = new Date(chat.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+            bubble.className = `message-bubble ${isClient ? 'client-message' : 'bot-message'}`;
+            bubble.innerHTML = `
+                ${chat.message}
+                <span class="message-time">${time}</span>
+            `;
+            chatHistoryElement.appendChild(bubble);
+        });
+        
+        document.getElementById('chat-modal').style.display = 'flex';
+        chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight; 
+    };
+
+    // Lógica para cerrar el modal
+    document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('chat-modal').style.display = 'none';
+    });
+
+    // Cargar los datos al iniciar
+    document.addEventListener('DOMContentLoaded', loadInteractions);
+    
+    // Función de Logout (simulada)
+    window.logoutUser = () => {
+        window.location.href = 'index.html';
+    };
+}
