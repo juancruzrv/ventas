@@ -42,44 +42,44 @@
 
         // Obtener elementos del DOM
         const loginForm = document.getElementById('login-form');
+        const loginButton = loginForm ? loginForm.querySelector('button[type="submit"]') : null; 
         const errorMessage = document.getElementById('error-message');
 
-        // Función para manejar el inicio de sesión
+        // Función de manejo del evento
         async function handleLogin(event) {
-            // 🌟 CLAVE: Previene el envío por defecto del formulario (evita el '?' en la URL)
+            // CLAVE: Detiene el envío de formulario por defecto (elimina el '?')
             event.preventDefault(); 
             
-            errorMessage.textContent = 'Verificando funcionalidad...'; 
-            
-            // Deshabilitar el botón temporalmente
-            const loginButton = loginForm.querySelector('button[type="submit"]');
-            loginButton.disabled = true;
-            loginButton.textContent = 'Redirigiendo...';
+            // Actualización visual del botón
+            if (loginButton) {
+                loginButton.disabled = true;
+                loginButton.textContent = 'Redirigiendo...';
+            }
+            errorMessage.textContent = 'Conectado a JS. Redirigiendo...'; 
 
-            // ----------------------------------------------------------------------
-            // MODO DE PRUEBA: BYPASS DE AUTENTICACIÓN (Eliminar si se usa la lógica Supabase)
-            // ----------------------------------------------------------------------
-            
-            // Simula un pequeño retraso
+            // MODO DE PRUEBA: BYPASS
             await new Promise(resolve => setTimeout(resolve, 500)); 
             
             // ** REDIRECCIÓN FORZADA **
             window.location.href = 'dashboard.html'; 
             
-            // ----------------------------------------------------------------------
-            // FIN MODO DE PRUEBA
-            // ----------------------------------------------------------------------
-            
             // NOTA: La lógica de Supabase real está comentada para esta prueba.
         }
 
-        // Escuchar el evento de envío del formulario
+        // 🌟 ESCUCHAR EL EVENTO 🌟
         if (loginForm) {
             loginForm.addEventListener('submit', handleLogin);
+        } else if (loginButton) {
+            // Backup listener en el botón por si el listener del form falla
+            loginButton.addEventListener('click', handleLogin);
+        } else {
+            // Muestra un mensaje de error visible si no se encuentra el formulario
+            errorMessage.textContent = 'Error crítico: No se encontró el formulario (ID "login-form").';
         }
 
         // Comprobar sesión activa al cargar la página
         async function checkSession() {
+            // Esto sólo funcionará si las claves de Supabase son correctas
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 window.location.href = 'dashboard.html';
