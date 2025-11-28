@@ -2,23 +2,23 @@
 // 1. CONFIGURACIÓN DE SUPABASE
 // ======================================================================
 
-// URL de la API de Supabase proporcionada
+// URL de la API de Supabase
 const SUPABASE_URL = 'https://qkxefpovtejifoophhya.supabase.co'; 
-// Anon Key proporcionada (clave pública para lectura)
+// Anon Key
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFreGVmcG92dGVqaWZvb3BoaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTM4NTgsImV4cCI6MjA3OTg2OTg1OH0.hnzWQjicUJtUyfZLpTHipQLVcWCnIQYv1d3u9bNsMvQ'; 
-// Nombre de la tabla de pedidos
+// Nombre de la tabla de pedidos (AJUSTA si es diferente)
 const TABLE_NAME = 'pedidos'; 
 
 let currentPedidoId = null;
 let loggedUser = "Usuario A";
-let mockData = []; // Ahora contendrá la data cargada de Supabase
+let mockData = []; // Contendrá la data cargada de Supabase
 
 const pedidosList = document.getElementById('pedidos-list');
 const pedidosCount = document.getElementById('pedidos-count');
 const modal = document.getElementById('detail-modal');
 
 // ----------------------------------------------------------------------
-// 2. FUNCIÓN DE CARGA DE DATOS (API)
+// 2. FUNCIÓN DE CARGA DE DATOS (API FETCH)
 // ----------------------------------------------------------------------
 
 /**
@@ -27,7 +27,6 @@ const modal = document.getElementById('detail-modal');
 async function fetchPedidos() {
     console.log("Intentando cargar pedidos desde Supabase...");
     
-    // Construye la URL de la API REST de Supabase para seleccionar todos los campos
     const fetchUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?select=*`;
 
     try {
@@ -46,19 +45,13 @@ async function fetchPedidos() {
 
         const data = await response.json();
         
-        // Asigna la data cargada a la variable global mockData
-        mockData = data.map(pedido => ({
-            ...pedido,
-            // ASEGURAMOS QUE LA ESTRUCTURA SE ADAPTE A COMO ESPERA RENDERIZAR EL CÓDIGO JS
-            // Necesitarás adaptar estos nombres de campo si tu tabla es diferente.
-            // Ejemplo: pedido.id => pedido.id
-            // Ejemplo: pedido.nombre_cliente => pedido.clientes.nombre 
-        }));
+        // Asigna la data cargada. Es crucial que los nombres de campo (p.ej., producto_nombre, clientes, logs) 
+        // coincidan con los nombres de columna de tu tabla de Supabase.
+        mockData = data; 
         
         console.log(`✅ ${data.length} pedidos cargados correctamente.`);
         
-        // Una vez cargados, filtramos y renderizamos
-        filterPedidos();
+        filterPedidos(); // Renderiza los pedidos
 
     } catch (error) {
         console.error('❌ Error al cargar los pedidos desde Supabase:', error);
@@ -68,107 +61,36 @@ async function fetchPedidos() {
 
 
 // ----------------------------------------------------------------------
-// 3. LÓGICA DE ASIGNACIÓN Y ACTUALIZACIÓN DE ESTADO (Requiere UPDATE en API)
+// 3. LÓGICA DE ASIGNACIÓN Y ACTUALIZACIÓN (CON SUPABASE PATCH)
 // ----------------------------------------------------------------------
 
-/**
- * Función que se llama al hacer clic en 'Tomar Asignación'.
- * NOTA: Esta función DEBE ser modificada para enviar la actualización a tu API.
- */
 function handleAssignClick() {
     if (currentPedidoId !== null) {
-        // En un entorno real, aquí se llamaría a una API de UPDATE:
         asignarPedido(currentPedidoId, loggedUser);
     }
 }
 
 /**
- * Asigna el pedido al usuario logueado.
- * NOTA: Usa la variable 'mockData' localmente. Requiere API.
- * * !!! ADVERTENCIA: Esta implementación local no persiste en Supabase. !!!
- * Debes implementar el UPDATE de Supabase para hacer persistente la asignación.
+ * Asigna el pedido al usuario logueado usando PATCH en Supabase.
  */
 async function asignarPedido(id, usuario) {
     const pedido = mockData.find(p => p.id === id);
     
-    if (pedido && pedido.estado === 'Pendiente') {
-        if (pedido.asignado_a === 'N/A') {
-            
-            // --- CÓDIGO PARA LLAMAR AL UPDATE DE SUPABASE ---
-            
-            const updateUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?id=eq.${id}`;
-            const updateData = {
-                asignado_a: usuario,
-                fecha_ultima_accion: new Date().toISOString()
-            };
-
-            try {
-                const response = await fetch(updateUrl, {
-                    method: 'PATCH', // Usar PATCH para actualizar
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Prefer': 'return=minimal' // Respuesta mínima
-                    },
-                    body: JSON.stringify(updateData)
-                });
-                
-                if (!response.ok) {
-                     throw new Error(`Error al actualizar estado: ${response.status}`);
-                }
-                
-                // Actualización local exitosa y luego refrescamos la UI
-                pedido.asignado_a = usuario;
-                pedido.fecha_ultima_accion = updateData.fecha_ultima_accion;
-                
-                filterPedidos();
-                showDetail(id); // Refresca el modal para mostrar los nuevos botones
-                alert(`✅ Pedido #${id} tomado y asignado a ${usuario}.`);
-                
-            } catch (error) {
-                 console.error('Error al intentar asignar pedido en Supabase:', error);
-                 alert('❌ Error de conexión al intentar asignar el pedido.');
-            }
-            
-        } else if (pedido.asignado_a === usuario) {
-            alert(`ℹ️ El pedido #${id} ya está asignado a ti.`);
-        } else {
-            alert(`❌ El pedido #${id} ya está siendo gestionado por ${pedido.asignado_a}. No puedes tomarlo.`);
-        }
-    } else if (pedido && pedido.estado !== 'Pendiente') {
-         alert(`❌ El pedido #${id} ya está ${pedido.estado} y no puede ser re-asignado.`);
-    } else {
-         alert(`❌ Error: Pedido #${id} no encontrado.`);
+    if (!pedido || pedido.estado !== 'Pendiente') {
+        alert(`❌ El pedido #${id} ya está ${pedido.estado || 'gestionado'} y no puede ser re-asignado.`);
+        return;
     }
-}
-
-/**
- * Actualiza el estado de un pedido (Completado/Cancelado).
- * * !!! ADVERTENCIA: Esta implementación local no persiste en Supabase. !!!
- * Debes implementar el UPDATE de Supabase para hacer persistente el cambio.
- */
-async function actualizarEstado(id, nuevoEstado) {
-    const pedido = mockData.find(p => p.id === id);
     
-    if (pedido && pedido.estado === 'Pendiente') {
-        
-        if (pedido.asignado_a !== loggedUser) {
-            alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}. Solo el usuario asignado puede completarlo/cancelarlo.`);
-            return;
-        }
-        
-        // --- CÓDIGO PARA LLAMAR AL UPDATE DE SUPABASE ---
-        
+    if (pedido.asignado_a === 'N/A' || !pedido.asignado_a) {
         const updateUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?id=eq.${id}`;
         const updateData = {
-            estado: nuevoEstado,
+            asignado_a: usuario,
             fecha_ultima_accion: new Date().toISOString()
         };
 
         try {
             const response = await fetch(updateUrl, {
-                method: 'PATCH', // Usar PATCH para actualizar
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'apikey': SUPABASE_ANON_KEY,
@@ -177,35 +99,85 @@ async function actualizarEstado(id, nuevoEstado) {
                 },
                 body: JSON.stringify(updateData)
             });
-
+            
             if (!response.ok) {
                  throw new Error(`Error al actualizar estado: ${response.status}`);
             }
-
-            // Actualización local exitosa y luego refrescamos la UI
-            pedido.estado = nuevoEstado;
+            
+            // Actualización local para reflejar el cambio sin recargar
+            pedido.asignado_a = usuario;
             pedido.fecha_ultima_accion = updateData.fecha_ultima_accion;
             
             filterPedidos();
-            closeModal();
-            alert(`🎉 Pedido #${id} marcado como ${nuevoEstado}.`);
-
+            showDetail(id);
+            alert(`✅ Pedido #${id} tomado y asignado a ${usuario}.`);
+            
         } catch (error) {
-             console.error('Error al intentar actualizar estado en Supabase:', error);
-             alert('❌ Error de conexión al intentar actualizar el estado del pedido.');
+             console.error('Error al intentar asignar pedido en Supabase:', error);
+             alert('❌ Error de conexión al intentar asignar el pedido.');
         }
-        
-    } else if (pedido && pedido.estado === nuevoEstado) {
-        alert(`ℹ️ El pedido #${id} ya es ${nuevoEstado}.`);
-    } else if (pedido) {
-        alert(`❌ El pedido #${id} ya está ${pedido.estado} y no puede ser modificado.`);
+    } else if (pedido.asignado_a === usuario) {
+        alert(`ℹ️ El pedido #${id} ya está asignado a ti.`);
     } else {
-         alert(`❌ Error: Pedido #${id} no encontrado.`);
+        alert(`❌ El pedido #${id} ya está siendo gestionado por ${pedido.asignado_a}. No puedes tomarlo.`);
     }
 }
 
+/**
+ * Actualiza el estado del pedido (Completado/Cancelado) usando PATCH en Supabase.
+ */
+async function actualizarEstado(id, nuevoEstado) {
+    const pedido = mockData.find(p => p.id === id);
+    
+    if (!pedido || pedido.estado !== 'Pendiente') {
+        alert(`❌ El pedido #${id} ya está ${pedido.estado || 'gestionado'} y no puede ser modificado.`);
+        return;
+    }
+
+    if (pedido.asignado_a !== loggedUser) {
+        alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}. Solo el usuario asignado puede completarlo/cancelarlo.`);
+        return;
+    }
+
+    const updateUrl = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?id=eq.${id}`;
+    const updateData = {
+        estado: nuevoEstado,
+        fecha_ultima_accion: new Date().toISOString()
+    };
+
+    try {
+        const response = await fetch(updateUrl, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        if (!response.ok) {
+             throw new Error(`Error al actualizar estado: ${response.status}`);
+        }
+
+        // Actualización local
+        pedido.estado = nuevoEstado;
+        pedido.fecha_ultima_accion = updateData.fecha_ultima_accion;
+        
+        filterPedidos();
+        closeModal();
+        alert(`🎉 Pedido #${id} marcado como ${nuevoEstado}.`);
+
+    } catch (error) {
+         console.error('Error al intentar actualizar estado en Supabase:', error);
+         alert('❌ Error de conexión al intentar actualizar el estado del pedido.');
+    }
+}
+
+
 // ----------------------------------------------------------------------
-// 4. LÓGICA DE FILTRADO Y RENDERIZADO (Sin Cambios)
+// 4. LÓGICA DE FILTRADO Y RENDERIZADO
 // ----------------------------------------------------------------------
 
 function renderPedidos(data) {
@@ -213,17 +185,17 @@ function renderPedidos(data) {
     pedidosCount.textContent = data.length;
 
     if (data.length === 0) {
-         pedidosList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #999;">Cargando pedidos...</p>';
+         pedidosList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #999;">No hay pedidos en este estado.</p>';
          return;
     }
-
-    // ... (El resto de la función renderPedidos se mantiene igual) ...
 
     data.forEach(p => {
         const item = document.createElement('div');
         item.className = 'pedido-item';
         
-        const estadoClass = `estado-${p.estado.toLowerCase().replace(/á/g, 'a')}`; 
+        // Asegura que p.estado no sea null/undefined antes de manipularlo
+        const estado = p.estado || 'N/A';
+        const estadoClass = `estado-${estado.toLowerCase().replace(/á/g, 'a')}`; 
         item.classList.add(estadoClass);
 
         item.setAttribute('onclick', `showDetail(${p.id})`);
@@ -232,20 +204,17 @@ function renderPedidos(data) {
             `<br><small style="color: #00fff2; font-weight: bold;">Asignado: ${p.asignado_a}</small>` : 
             `<br><small style="color: #f39c12;">Sin Asignar</small>`;
         
-        // *************************************************************
-        // * NOTA: AJUSTAR ESTO A LA ESTRUCTURA REAL DE TU TABLA DE DB *
-        // *************************************************************
-        // Ejemplo asumiendo que los datos del cliente vienen anidados. 
-        // Si vienen planos (ej. cliente_nombre, cliente_whatsapp), ajusta:
-        const clientName = p.clientes ? p.clientes.nombre : 'Cliente Desconocido'; 
-        const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
+        // AJUSTE CRÍTICO: Asegurarse de que 'clientes' exista y sea el formato correcto
+        // Si 'clientes' es una columna JSON/JSONB en Supabase, esto funciona:
+        const clientName = (p.clientes && p.clientes.nombre) || 'Cliente Desconocido';
+        const date = p.fecha_pedido ? new Date(p.fecha_pedido).toLocaleDateString('es-ES') : 'N/A';
         
         item.innerHTML = `
             <p style="font-size: 1.1em; margin: 0 0 5px 0; color: #c501e2;">
-                ${p.producto_nombre} 
+                ${p.producto_nombre || 'Producto N/A'}
             </p>
             <p style="margin: 0 0 5px 0;">
-                Estado: <strong style="color: ${getEstadoColor(p.estado)};">${p.estado}</strong>
+                Estado: <strong style="color: ${getEstadoColor(estado)};">${estado}</strong>
             </p>
             <p style="margin: 0;">
                 <small>Cliente: ${clientName}</small>
@@ -256,7 +225,6 @@ function renderPedidos(data) {
         pedidosList.appendChild(item);
     });
 }
-
 
 function filterPedidos() {
     const checkboxes = document.querySelectorAll('.filter-checkbox');
@@ -270,7 +238,6 @@ function filterPedidos() {
         filteredData = mockData; 
     } else {
         filteredData = mockData.filter(p => {
-            // Asegura que p.estado exista antes de intentar manipularlo
             if (!p.estado) return false; 
             const normalizedState = p.estado.toLowerCase().replace(/á/g, 'a');
             return activeFilters.includes(normalizedState);
@@ -288,7 +255,7 @@ function getEstadoColor(estado) {
 }
 
 // ----------------------------------------------------------------------
-// 5. FUNCIONALIDAD DEL MODAL (Ajustada para manejar posibles valores null/undefined)
+// 5. FUNCIONALIDAD DEL MODAL
 // ----------------------------------------------------------------------
 
 function showDetail(pedidoId) {
@@ -297,12 +264,8 @@ function showDetail(pedidoId) {
 
     currentPedidoId = pedidoId; 
     
-    // *************************************************************
-    // * NOTA: AJUSTAR ESTO A LA ESTRUCTURA REAL DE TU TABLA DE DB *
-    // *************************************************************
-    // Aseguramos que las propiedades existan
-    const clientName = (pedido.clientes && pedido.clientes.nombre) ? pedido.clientes.nombre : 'N/A';
-    const clientId = (pedido.clientes && pedido.clientes.numero_whatsapp) ? pedido.clientes.numero_whatsapp : 'N/A';
+    const clientName = (pedido.clientes && pedido.clientes.nombre) || 'N/A';
+    const clientId = (pedido.clientes && pedido.clientes.numero_whatsapp) || 'N/A';
     
     document.getElementById('modal-title').textContent = `Detalle del Pedido #${pedido.id}`;
     document.getElementById('detail-product').textContent = pedido.producto_nombre || 'N/A';
@@ -315,8 +278,6 @@ function showDetail(pedidoId) {
     document.getElementById('detail-assigned-user').textContent = pedido.asignado_a || 'N/A';
     document.getElementById('detail-last-action-date').textContent = lastActionDate;
     
-    // ... (El resto del control de botones se mantiene igual) ...
-
     const assignBtn = document.getElementById('assign-btn');
     const completeBtn = document.getElementById('complete-btn');
     const cancelBtn = document.getElementById('cancel-btn');
@@ -355,7 +316,6 @@ function showDetail(pedidoId) {
     const logContainer = document.getElementById('detail-conversation-log');
     logContainer.innerHTML = '';
     
-    // Asegurarse de que el log exista y sea un array
     const logs = pedido.logs || []; 
     const sortedLogs = [...logs].reverse(); 
 
@@ -384,7 +344,7 @@ function closeModal() {
 }
 
 // ----------------------------------------------------------------------
-// 6. INICIALIZACIÓN Y LISTENERS (Llama a fetchPedidos)
+// 6. INICIALIZACIÓN Y LISTENERS
 // ----------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -400,15 +360,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // *** INICIO DE LA CARGA REAL DE DATOS ***
+    // Carga los datos de Supabase al iniciar
     fetchPedidos();
     
     document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', filterPedidos);
     });
-
-    // No es necesario llamar a filterPedidos() aquí, ya se llama dentro de fetchPedidos()
-    // filterPedidos(); 
 
     document.addEventListener('keydown', (e) => {
         if (e.key === "Escape") {
