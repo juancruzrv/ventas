@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Datos de Prueba</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <div class="header">
+        <h1>🛠️ Generador de Datos de Prueba</h1>
+        <a href="dashboard.html" class="logout-btn" style="float: left; margin-right: 10px; background-color: #3e2e88;">Volver al Dashboard</a>
+    </div>
+
+    <hr>
+    
+    <div class="container">
+        <div class="data-viewer" style="flex: 2;">
+            <h2>📝 Insertar Nueva Interacción</h2>
+            <form id="insert-form">
+                <label for="phone">Teléfono del Cliente:</label>
+                <input type="text" id="phone" value="+5491100000000" required>
+                
+                <label for="type">Tipo de Interacción:</label>
+                <select id="type" required>
+                    <option value="venta">Venta</option>
+                    <option value="pedido">Pedido</option>
+                    <option value="pregunta">Pregunta</option>
+                </select>
+
+                <label for="summary">Resumen (200 caracteres máx):</label>
+                <textarea id="summary" rows="3" maxlength="200" required>Resumen de prueba de una interacción de tipo [TIPO].</textarea>
+
+                <label for="message">Mensaje de Prueba (del Cliente):</label>
+                <input type="text" id="message" value="Hola, ¿me podrías dar más información sobre el producto X?" required>
+
+                <label for="response">Respuesta de Prueba (del Bot):</label>
+                <input type="text" id="response" value="Claro, con gusto. El producto X tiene un costo de $100." required>
+
+                <button type="submit" id="insert-button">Insertar Interacción de Prueba</button>
+            </form>
+            <p id="insert-message" style="margin-top: 15px;"></p>
+        </div>
+
+        <div class="settings" style="flex: 1;">
+            <h2>🗑️ Eliminar Interacciones</h2>
+            <p>Puedes eliminar todas las interacciones de la base de datos para limpiar tu entorno de prueba.</p>
+            <button id="delete-all-button" style="background-color: #d62828;">Eliminar TODAS las Interacciones</button>
+            <p id="delete-message" style="margin-top: 15px;"></p>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script src="test-data.js"></script>
+</body>
+</html>
