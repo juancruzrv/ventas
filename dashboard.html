@@ -13,40 +13,16 @@
     
         <div class="header">
             <h1>📊 Panel de Control del Chatbot</h1>
-            <button id="logout-btn" onclick="handleLogout()">Cerrar Sesión</button>
+            <button id="logout-btn">Cerrar Sesión</button> 
         </div>
         
         <div class="card">
             <h3>📈 Métricas Clave</h3>
             <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #00fff2;">0</span></p>
         </div>
-
-        <div class="data-grid">
-            
-            <div class="card" style="grid-column: 1 / -1;">
-                <h3>🛒 Pedidos</h3>
-                
-                <div id="filter-container">
-                    
-                    <input type="checkbox" id="filter-pendiente" class="filter-checkbox" value="pendiente" checked> 
-                    <label for="filter-pendiente" class="filter-checkbox-label">Pendientes</label>
-
-                    <input type="checkbox" id="filter-completada" class="filter-checkbox" value="completada" checked> 
-                    <label for="filter-completada" class="filter-checkbox-label">Completadas</label>
-                    
-                    <input type="checkbox" id="filter-cancelada" class="filter-checkbox" value="cancelada" checked> 
-                    <label for="filter-cancelada" class="filter-checkbox-label">Canceladas</label>
-                </div>
-
-                <div id="pedidos-list">
-                    <p style="grid-column: 1 / -1; text-align: center; color: #999;">Cargando pedidos...</p>
-                </div>
-            </div>
-            
-        </div>
         
-    </div> 
-
+        </div>
+    
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-content">
             
