@@ -343,44 +343,45 @@ function closeModal() {
 }
 
 // ----------------------------------------------------------------------
-// 6. FUNCIONALIDAD DE CIERRE DE SESIÓN (CORREGIDA)
+// 6. FUNCIONALIDAD DE CIERRE DE SESIÓN (FINAL)
 // ----------------------------------------------------------------------
 
 /**
- * Función que maneja el cierre de sesión, llamando a Supabase.auth.signOut() 
- * para destruir la sesión real antes de la redirección.
+ * Destruye la sesión de Supabase y luego redirige a index.html.
  */
 async function handleLogout() {
-    console.log("Cerrando sesión...");
+    console.log("Cerrando sesión de Supabase...");
     
     // 1. Destruir la sesión en Supabase
     const { error } = await supabase.auth.signOut(); 
 
     if (error) {
         console.error("Error al cerrar sesión:", error.message);
-        // Opcional: manejar el error si la conexión falla
+        // Si hay un error al cerrar, aún intentamos la redirección
     }
 
-    // 2. Redireccionar al index, ahora que el token ya no existe.
+    // 2. Redireccionar al index
     window.location.href = 'index.html'; 
 }
 
 
 // ----------------------------------------------------------------------
-// 7. INICIALIZACIÓN Y LISTENERS (CORREGIDA LA VERIFICACIÓN DE SESIÓN)
+// 7. INICIALIZACIÓN Y LISTENERS (VERIFICACIÓN DE SESIÓN EN CARGA)
 // ----------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // VERIFICACIÓN CRÍTICA DE SESIÓN (EVITA EL BUCLE DE REDIRECCIÓN)
+    // VERIFICACIÓN CRÍTICA: Si no hay usuario logueado, redirigir al login.
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error || !user) {
-        console.log("Sesión no detectada o inválida. Redirigiendo a index.html");
+        console.log("Sesión no detectada. Redirigiendo a index.html");
+        // Aseguramos que la redirección sea inmediata
         window.location.href = 'index.html';
-        return; // Detener la ejecución del dashboard si no hay sesión
+        return; 
     }
     
+    // Si la sesión es válida, continuamos con la carga del Dashboard
     const userSelect = document.getElementById('logged-user-select');
 
     loggedUser = userSelect.value;
