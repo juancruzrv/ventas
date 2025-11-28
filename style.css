@@ -1,0 +1,173 @@
+/* ======================================= */
+/* 1. Estilos Globales y de la Página */
+/* ======================================= */
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    padding: 20px; 
+    background-color: #f0f2f5; 
+    color: #333;
+    margin: 0; 
+}
+h1 { 
+    color: #2c3e50; 
+    font-size: 2em; 
+    margin: 0;
+}
+h2 { 
+    color: #1877f2; 
+    margin-bottom: 25px;
+}
+h3 { 
+    color: #00a896; 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+ul {
+    list-style: none;
+    padding: 0;
+}
+li {
+    padding: 8px 0;
+    border-bottom: 1px dotted #ccc;
+    font-size: 0.95em;
+}
+
+/* ======================================= */
+/* 2. Estilos del Login (index.html) */
+/* ======================================= */
+.login-page {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+}
+.login-container { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+    width: 320px; 
+}
+.login-container h2 { 
+    text-align: center; 
+}
+label { 
+    display: block; 
+    margin-bottom: 5px; 
+    color: #333; 
+    font-weight: 600;
+}
+input[type="email"], input[type="password"] { 
+    width: 100%; 
+    padding: 12px; 
+    margin-bottom: 20px; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    box-sizing: border-box; 
+    font-size: 16px;
+}
+button { 
+    background-color: #1877f2; 
+    color: white; 
+    padding: 15px 20px; 
+    border: none; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    width: 100%; 
+    font-size: 17px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+button:hover { 
+    background-color: #166fe5; 
+}
+#message { 
+    color: #d9534f; 
+    text-align: center; 
+    margin-top: 15px; 
+    font-weight: bold;
+}
+
+/* ======================================= */
+/* 3. Estilos del Dashboard (dashboard.html) */
+/* ======================================= */
+/* Se utiliza body padding-top/bottom: 20px de los estilos globales */
+
+/* Ocultamiento de seguridad por defecto */
+#dashboard-content {
+    display: none; 
+}
+.header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 3px solid #00a896; 
+    padding-bottom: 15px; 
+    margin-bottom: 30px; 
+}
+.data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas por defecto (escritorio/tablet grande) */
+    gap: 25px;
+}
+.card { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+    border-left: 5px solid #00a896; 
+}
+#logout-btn { 
+    background-color: #e74c3c; 
+    color: white; 
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 5px; 
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: auto; /* Anula el 100% del login */
+}
+#logout-btn:hover { 
+    background-color: #c0392b; 
+}
+#status-bar {
+    margin-bottom: 25px;
+    padding: 10px;
+    background-color: #ecf0f1;
+    border-radius: 5px;
+    font-weight: 600;
+}
+.metric {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+/* ======================================= */
+/* 4. Media Queries (Responsiveness) */
+/* ======================================= */
+@media (max-width: 768px) {
+    /* Login */
+    .login-container {
+        width: 90%; /* Hace el login más flexible en móviles */
+    }
+
+    /* Dashboard */
+    .data-grid {
+        /* Cambiar a una sola columna para móviles */
+        grid-template-columns: 1fr; 
+    }
+    
+    .card {
+        padding: 20px; /* Ajustar padding */
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #logout-btn {
+        margin-top: 15px;
+    }
+}
