@@ -1,51 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>TEST DE FORMULARIO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Dashboard CRM</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    
-    <div style="padding: 50px; text-align: center;">
-        <h2>Prueba de Conexión JavaScript</h2>
+    <div class="login-container">
         
-        <form id="test-form">
-            <input type="text" placeholder="Usuario">
-            <input type="password" placeholder="Contraseña">
+        <h1>Acceder</h1> 
+        
+        <form id="login-form">
             
-            <button type="submit" id="test-button" 
-                    style="padding: 10px; margin-top: 20px; background: green; color: white;">
-                PROBAR JS
-            </button>
+            <div class="form-group">
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" required placeholder="ejemplo@empresa.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+
+            <button type="submit">ACCEDER</button>
             
-            <p id="test-message" style="color: red; margin-top: 15px;"></p>
+            <p id="error-message" class="error-text"></p>
         </form>
     </div>
 
-    <script>
-        const form = document.getElementById('test-form');
-        const message = document.getElementById('test-message');
-
-        function handleTest(event) {
-            // 🛑 SI ESTO FUNCIONA, LA URL NO DEBE CAMBIAR
-            event.preventDefault(); 
-            
-            message.textContent = '¡El evento SÍ se disparó! Redireccionando...';
-            
-            // Si el código llega aquí, el problema NO es el JS.
-            setTimeout(() => {
-                // Aquí deberías ver una alerta
-                alert("¡El evento JavaScript está funcionando!"); 
-                
-                // Si la alerta aparece, el problema anterior era de sintaxis.
-            }, 500);
-        }
-
-        // Conectar la función al formulario
-        if (form) {
-            form.addEventListener('submit', handleTest);
-        } else {
-            message.textContent = 'Error: No se encontró el formulario ID="test-form".';
-        }
-    </script>
+    <script src="login.js"></script> 
+    
 </body>
 </html>
