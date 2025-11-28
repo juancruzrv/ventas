@@ -1,6 +1,11 @@
 /* ================================================================= */
-/* style.css - Responsive, Negro Absoluto, Neón INTENSO */
+/* style.css - FINAL: Responsive, Negro Absoluto, Neón INTENSO (SIN SCROLLBAR HORIZONTAL) */
 /* ================================================================= */
+
+/* === Reseteo y Box-Sizing para evitar desbordamiento === */
+* {
+    box-sizing: border-box; /* Crucial para asegurar que padding y border no aumenten el ancho */
+}
 
 /* === Variables CSS para colores y fuentes === */
 :root {
@@ -18,11 +23,12 @@
 body {
     font-family: var(--font-body);
     margin: 0;
-    padding: 20px;
-    background-color: var(--dark-bg); /* Aplicamos el negro puro */
+    padding: 20px; /* Padding general */
+    background-color: var(--dark-bg); 
     color: var(--text-light);
     line-height: 1.6;
     min-height: 100vh;
+    overflow-x: hidden; /* Oculta cualquier desbordamiento horizontal accidental */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -59,7 +65,7 @@ hr {
     flex: 1; 
     padding: 30px;
     border-radius: 12px;
-    background-color: var(--card-bg); /* Aplicamos el negro para las tarjetas */
+    background-color: var(--card-bg); 
     
     /* EFECTO NEÓN EN EL BORDE */
     box-shadow: 
@@ -94,7 +100,7 @@ hr {
 }
 
 #chat-data li:hover {
-    background-color: #1e0e37; /* Ligeramente más oscuro que el neón */
+    background-color: #1e0e37; 
     box-shadow: 0 0 8px rgba(101, 46, 199, 0.5); 
 }
 
@@ -153,20 +159,19 @@ button {
 .interaction-pregunta { color: #00ffff; text-shadow: 0 0 4px #00ffff; }
 
 
-/* === Login Page (index.html) - FORMATO CORREGIDO === */
+/* === Login Page (index.html) === */
 .login-body {
     display: flex; 
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: var(--dark-bg); /* Aplicamos el negro puro */
+    background-color: var(--dark-bg); 
     padding: 0;
     margin: 0;
-    box-sizing: border-box;
 }
 
 .login-container {
-    background-color: var(--card-bg); /* Aplicamos el negro casi puro */
+    background-color: var(--card-bg); 
     padding: 40px;
     border-radius: 12px;
     /* EFECTO NEÓN INTENSO */
@@ -177,14 +182,6 @@ button {
     width: 90%; 
     max-width: 400px;
     text-align: center;
-    box-sizing: border-box;
-}
-
-.login-container h1 {
-    font-size: 2.8em;
-    margin-bottom: 30px;
-    border-bottom: 2px solid var(--neon-purple);
-    padding-bottom: 10px;
 }
 
 input[type="email"], input[type="password"] {
@@ -193,7 +190,6 @@ input[type="email"], input[type="password"] {
     margin: 10px 0;
     border: 1px solid var(--border-dark);
     border-radius: 8px;
-    box-sizing: border-box;
     font-size: 16px;
     background-color: #2c2c4a;
     color: var(--text-light);
@@ -217,6 +213,7 @@ input[type="email"]:focus, input[type="password"]:focus {
     width: 100%;
 }
 
+
 /* === Modal (Chat History) === */
 #chat-modal {
     position: fixed; 
@@ -233,7 +230,7 @@ input[type="email"]:focus, input[type="password"]:focus {
 }
 
 .chat-modal-content {
-    background-color: var(--card-bg); /* Aplicamos el negro casi puro */
+    background-color: var(--card-bg); 
     padding: 30px;
     border-radius: 12px;
     /* EFECTO NEÓN EN EL BORDE DEL MODAL */
@@ -244,7 +241,6 @@ input[type="email"]:focus, input[type="password"]:focus {
     width: 90%; 
     max-width: 700px;
     position: relative;
-    box-sizing: border-box;
 }
 
 #chat-history {
@@ -258,18 +254,115 @@ input[type="email"]:focus, input[type="password"]:focus {
     box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
 }
 
+.message-bubble {
+    padding: 10px;
+    border-radius: 12px; 
+    margin-bottom: 10px;
+    max-width: 75%;
+    clear: both;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 0 2px rgba(101, 46, 199, 0.2);
+    font-size: 0.95em;
+    word-wrap: break-word;
+    position: relative;
+}
+
 .client-message {
     background-color: #4a154b; 
+    color: white;
+    float: right;
+    border-bottom-right-radius: 2px;
 }
 
 .bot-message {
     background-color: #2c3e50;
+    color: white;
+    float: left;
+    border-bottom-left-radius: 2px;
 }
+
+.message-time {
+    font-size: 0.7em; 
+    color: var(--text-muted); 
+    margin-left: 10px; 
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+#close-modal {
+    color: var(--text-muted);
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s;
+}
+
+#close-modal:hover {
+    color: var(--neon-purple);
+    text-shadow: 0 0 5px var(--neon-purple);
+}
+
 
 /* === Media Query para Móviles (Max-width 768px) === */
 @media (max-width: 768px) {
-    /* ... (La lógica responsive se mantiene) ... */
+    body {
+        padding: 10px; /* Reducimos el padding */
+    }
+
+    h1 {
+        font-size: 1.8em;
+        display: block;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .logout-btn {
+        float: none;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .data-viewer, .settings {
+        padding: 20px;
+        width: 100%; 
+    }
     
+    .login-container {
+        width: 90%; 
+        max-width: 400px;
+    }
+
+    #chat-data li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #chat-data li > div:first-child {
+        width: 100%;
+        margin-bottom: 10px;
+        padding-right: 0;
+    }
+    
+    #chat-data li button {
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .chat-modal-content {
+        margin: 10px;
+        width: auto;
+    }
+    
+    #chat-history {
+        height: 40vh;
+    }
+
     /* Reducir el brillo neón en móvil */
     .data-viewer, .settings, .login-container, .chat-modal-content {
         box-shadow: 
@@ -278,7 +371,7 @@ input[type="email"]:focus, input[type="password"]:focus {
             0 0 3px var(--neon-purple);
     }
 }
-/* ... (El resto de estilos de elementos pequeños se mantienen) ... */
+
 
 /* Scrollbar personalizado para el historial de chat */
 #chat-history::-webkit-scrollbar {
