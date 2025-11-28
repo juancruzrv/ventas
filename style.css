@@ -195,7 +195,7 @@ button:hover {
     list-style: none;
 }
 
-/* Estilo base para cada contenedor de pedido individual */
+/* Estilo base para cada contenedor de pedido individual (NEÓN LATERAL) */
 .pedido-item {
     background: #252525;
     padding: 15px;
@@ -261,27 +261,71 @@ button:hover {
 }
 
 
-/* Estilos para la barra de Filtros */
+/* Estilos para el nuevo sistema de Checkbox Filtro */
 #filter-container {
     margin-bottom: 20px;
     display: flex;
-    gap: 10px;
+    gap: 20px; /* Separación más grande */
     flex-wrap: wrap;
+    align-items: center;
 }
-.filter-btn {
-    background-color: #333;
-    color: #e0e0e0;
-    padding: 8px 15px;
-    border: 1px solid #555;
-    border-radius: 5px;
+
+.filter-checkbox-label {
+    position: relative;
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 1em;
+    padding-left: 30px; /* Espacio para la casilla personalizada */
+    color: #e0e0e0;
+    user-select: none;
+    transition: color 0.2s;
+    font-weight: 400;
 }
-.filter-btn.active, .filter-btn:hover {
-    background-color: #c501e2;
-    color: white;
-    border-color: #e327ff;
-    box-shadow: 0 0 5px rgba(197, 1, 226, 0.7);
+
+/* Ocultar la casilla nativa */
+.filter-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Estilo del recuadro personalizado (El "Neón") */
+.filter-checkbox-label::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border: 2px solid #555;
+    background-color: #2c2c2c;
+    border-radius: 3px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Estilo del checkmark (palomita) */
+.filter-checkbox-label::after {
+    content: '✓'; 
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    transform: translateY(-50%) scale(0); /* Oculto por defecto */
+    font-size: 16px;
+    color: #00fff2; /* Color de la palomita */
+    font-weight: bold;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Estado: Checked */
+.filter-checkbox:checked + .filter-checkbox-label::before {
+    border-color: #c501e2; /* Borde neón brillante */
+    box-shadow: 0 0 8px rgba(197, 1, 226, 0.8); /* Brillo neón */
+    background-color: #333;
+}
+.filter-checkbox:checked + .filter-checkbox-label::after {
+    transform: translateY(-50%) scale(1); /* Muestra la palomita */
 }
 
 /* Estilos del Modal */
