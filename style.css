@@ -1,17 +1,18 @@
 /* --- Variables para el Color Neón --- */
 :root {
-    --neon-color: #C501E2; 
+    --neon-color: #C501E2; /* Púrpura Neón */
     --background-dark: #0D1117; 
     --card-dark: #161B22; 
     --text-light: #EAEAEA; 
     --transition-speed: 0.3s;
-    --error-color: #FF6347; 
+    --error-color: #FF6347; /* Rojo para errores */
 }
 
 /* --- Base y Centrado Responsive --- */
 body {
     font-family: 'Inter', sans-serif; 
     background-color: var(--background-dark);
+    /* Flexbox para centrar la tarjeta */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,7 +32,7 @@ body {
     text-align: center;
     border: 1px solid var(--neon-color); 
     
-    /* Efecto Neón de la tarjeta: usando el nuevo color */
+    /* Efecto Neón de la tarjeta */
     box-shadow: 0 0 10px rgba(197, 1, 226, 0.5), 
                 0 0 20px rgba(197, 1, 226, 0.3), 
                 inset 0 0 5px rgba(197, 1, 226, 0.2); 
@@ -47,12 +48,13 @@ h1 {
     color: var(--neon-color);
     margin-bottom: 30px;
     font-size: 2.2em;
+    /* Brillo en el texto */
     text-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(197, 1, 226, 0.5); 
 }
 
 label {
     display: block;
-    /* ALINEACIÓN CORRECTA: A la izquierda para mejor UX */
+    /* ¡CORREGIDO! Alineación a la izquierda */
     text-align: left; 
     margin-bottom: 8px;
     font-weight: bold;
@@ -79,6 +81,7 @@ input[type="email"]:focus,
 input[type="password"]:focus {
     outline: none; 
     border-color: var(--neon-color);
+    /* Sombra interior para simular la luz del campo */
     box-shadow: inset 0 0 8px var(--neon-color); 
 }
 
@@ -93,14 +96,23 @@ button {
     font-size: 1.1em;
     font-weight: bold;
     width: 100%;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    /* Transición para el hover y la animación 'active' */
+    transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s; 
     box-shadow: 0 0 5px var(--neon-color), 0 0 15px rgba(197, 1, 226, 0.7);
 }
 
 button:hover {
-    background-color: #E233FF; /* Tono más claro de púrpura al pasar el ratón */
+    background-color: #E233FF; 
     box-shadow: 0 0 10px var(--neon-color), 0 0 30px rgba(197, 1, 226, 0.9);
 }
+
+/* Animación de presión al hacer clic */
+button:active {
+    transform: scale(0.98); 
+    transform: translateY(1px);
+    box-shadow: 0 0 3px var(--neon-color); /* Reduce el brillo */
+}
+
 
 /* --- Mensaje de Error --- */
 .error-text {
