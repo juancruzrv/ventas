@@ -201,7 +201,7 @@ button:hover {
     padding: 15px;
     border-radius: 6px;
     border-left: 5px solid transparent; /* Base para el borde sólido de estado */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Sombra sutil general */
+    /* Eliminamos la sombra general, solo queremos la sombra de neón */
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative; 
@@ -217,40 +217,28 @@ button:hover {
 /* PENDIENTE */
 .estado-pendiente {
     border-left-color: #f39c12; /* Borde sólido naranja */
-    box-shadow: 
-        0 0 5px rgba(0, 0, 0, 0.5), /* Sombra general suave */
-        inset 5px 0 15px rgba(243, 156, 18, 0.7); /* Sombra neón interior izquierda */
+    box-shadow: inset 5px 0 15px rgba(243, 156, 18, 0.7); /* Sombra neón interior izquierda */
 }
 .estado-pendiente:hover {
-    box-shadow: 
-        0 0 15px rgba(0, 0, 0, 0.7), /* Sombra general más fuerte en hover */
-        inset 5px 0 25px rgba(243, 156, 18, 1); /* Sombra neón interior izquierda más intensa */
+    box-shadow: inset 5px 0 25px rgba(243, 156, 18, 1); /* Sombra neón interior izquierda más intensa */
 }
 
 /* COMPLETADA */
 .estado-completada {
     border-left-color: #2ecc71; /* Borde sólido verde */
-    box-shadow: 
-        0 0 5px rgba(0, 0, 0, 0.5),
-        inset 5px 0 15px rgba(46, 204, 113, 0.7); /* Sombra neón interior izquierda */
+    box-shadow: inset 5px 0 15px rgba(46, 204, 113, 0.7); /* Sombra neón interior izquierda */
 }
 .estado-completada:hover {
-    box-shadow: 
-        0 0 15px rgba(0, 0, 0, 0.7),
-        inset 5px 0 25px rgba(46, 204, 113, 1); /* Sombra neón interior izquierda más intensa */
+    box-shadow: inset 5px 0 25px rgba(46, 204, 113, 1); /* Sombra neón interior izquierda más intensa */
 }
 
 /* CANCELADA */
 .estado-cancelada {
     border-left-color: #e74c3c; /* Borde sólido rojo */
-    box-shadow: 
-        0 0 5px rgba(0, 0, 0, 0.5),
-        inset 5px 0 15px rgba(231, 76, 60, 0.7); /* Sombra neón interior izquierda */
+    box-shadow: inset 5px 0 15px rgba(231, 76, 60, 0.7); /* Sombra neón interior izquierda */
 }
 .estado-cancelada:hover {
-    box-shadow: 
-        0 0 15px rgba(0, 0, 0, 0.7),
-        inset 5px 0 25px rgba(231, 76, 60, 1); /* Sombra neón interior izquierda más intensa */
+    box-shadow: inset 5px 0 25px rgba(231, 76, 60, 1); /* Sombra neón interior izquierda más intensa */
 }
 
 
