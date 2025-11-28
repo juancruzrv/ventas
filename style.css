@@ -200,11 +200,24 @@ button:hover {
     background: #252525;
     padding: 15px;
     border-radius: 6px;
-    border-left: 5px solid transparent; /* Base para el borde sólido de estado */
-    /* Eliminamos la sombra general, solo queremos la sombra de neón */
+    border-left: 5px solid transparent; /* Mantiene el espacio para el borde sólido */
+    box-shadow: none; /* Asegura que no haya sombra general */
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative; 
+    overflow: hidden; /* Importante para contener el pseudo-elemento */
+}
+
+/* Pseudo-elemento para el resplandor neón lateral */
+.pedido-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px; /* Ancho del resplandor */
+    height: 100%;
+    pointer-events: none; /* Asegura que no interfiera con el clic */
+    transition: box-shadow 0.2s ease;
 }
 
 /* Efecto hover */
@@ -216,29 +229,35 @@ button:hover {
 
 /* PENDIENTE */
 .estado-pendiente {
-    border-left-color: #f39c12; /* Borde sólido naranja */
-    box-shadow: inset 5px 0 15px rgba(243, 156, 18, 0.7); /* Sombra neón interior izquierda */
+    border-left-color: #f39c12; 
 }
-.estado-pendiente:hover {
-    box-shadow: inset 5px 0 25px rgba(243, 156, 18, 1); /* Sombra neón interior izquierda más intensa */
+.estado-pendiente::before {
+    box-shadow: 0 0 10px 3px rgba(243, 156, 18, 0.9); /* Sombra 2D pura */
+}
+.estado-pendiente:hover::before {
+    box-shadow: 0 0 15px 5px rgba(243, 156, 18, 1);
 }
 
 /* COMPLETADA */
 .estado-completada {
-    border-left-color: #2ecc71; /* Borde sólido verde */
-    box-shadow: inset 5px 0 15px rgba(46, 204, 113, 0.7); /* Sombra neón interior izquierda */
+    border-left-color: #2ecc71; 
 }
-.estado-completada:hover {
-    box-shadow: inset 5px 0 25px rgba(46, 204, 113, 1); /* Sombra neón interior izquierda más intensa */
+.estado-completada::before {
+    box-shadow: 0 0 10px 3px rgba(46, 204, 113, 0.9);
+}
+.estado-completada:hover::before {
+    box-shadow: 0 0 15px 5px rgba(46, 204, 113, 1);
 }
 
 /* CANCELADA */
 .estado-cancelada {
-    border-left-color: #e74c3c; /* Borde sólido rojo */
-    box-shadow: inset 5px 0 15px rgba(231, 76, 60, 0.7); /* Sombra neón interior izquierda */
+    border-left-color: #e74c3c; 
 }
-.estado-cancelada:hover {
-    box-shadow: inset 5px 0 25px rgba(231, 76, 60, 1); /* Sombra neón interior izquierda más intensa */
+.estado-cancelada::before {
+    box-shadow: 0 0 10px 3px rgba(231, 76, 60, 0.9);
+}
+.estado-cancelada:hover::before {
+    box-shadow: 0 0 15px 5px rgba(231, 76, 60, 1);
 }
 
 
