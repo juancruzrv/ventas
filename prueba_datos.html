@@ -28,14 +28,14 @@
         <div class="data-grid">
             
             <div class="card">
-                <h3>🛒 Últimos Pedidos</h3>
+                <h3>🛒 Últimos Pedidos (Detalle)</h3>
                 <ul id="pedidos-list">
                     <li>Cargando pedidos simulados...</li>
                 </ul>
             </div>
             
             <div class="card" style="border-left-color: #00fff2;">
-                <h3>💬 Logs de Conversación Reciente</h3>
+                <h3>💬 Logs de Conversación Reciente (ID: Producto, Stock, Acción)</h3>
                 <ul id="conversacion-list">
                     <li>Cargando logs simulados...</li>
                 </ul>
@@ -50,70 +50,71 @@
         // 1. DATOS SIMULADOS (JSON que vendría de Supabase)
         // ----------------------------------------------------------------------
 
-        // A. SIMULACIÓN DE PEDIDOS (Se simulan 3)
+        // A. SIMULACIÓN DE PEDIDOS
+        // Se incluyen los campos clave: producto_nombre, estado y el numero_whatsapp (como ID único)
         const mockPedidos = [
             {
                 id: 105,
-                producto_servicio: "Instalación de Fibra Óptica (Plan Premium)",
-                monto: 59.99,
-                estado: "Pendiente",
-                fecha_pedido: "2025-11-28T09:30:00Z",
-                clientes: { nombre: "Andrea García", numero_whatsapp: 5491155551234 }
+                producto_nombre: "Oud Ispahan 100ml", // Producto buscado y confirmado
+                monto: 120.00,
+                estado: "Pendiente", // Estado de la operación
+                clientes: { 
+                    nombre: "Andrea García", 
+                    numero_whatsapp: "+5491155551234" // ID ÚNICO DEL CLIENTE
+                }
             },
             {
                 id: 104,
-                producto_servicio: "Recarga de Saldo (5GB)",
-                monto: 15.00,
-                estado: "Completado",
-                fecha_pedido: "2025-11-27T18:45:00Z",
-                clientes: { nombre: "Ricardo Perez", numero_whatsapp: 5491166665678 }
+                producto_nombre: "Shaghaf Oud Aswad",
+                monto: 45.00,
+                estado: "Completada",
+                clientes: { 
+                    nombre: "Ricardo Perez", 
+                    numero_whatsapp: "+5491166665678" 
+                }
             },
             {
                 id: 103,
-                producto_servicio: "Soporte Técnico Nivel 2",
-                monto: 0.00,
-                estado: "En proceso",
-                fecha_pedido: "2025-11-27T10:15:00Z",
-                clientes: { nombre: "Javier López", numero_whatsapp: 5491177779012 }
+                producto_nombre: "Yatagan (Cancelado por Stock)",
+                monto: 70.00,
+                estado: "Cancelada",
+                clientes: { 
+                    nombre: "Javier López", 
+                    numero_whatsapp: "+5491177779012" 
+                }
             }
         ];
 
-        // B. SIMULACIÓN DE CONVERSACIÓN (Se simulan 5 interacciones)
+        // B. SIMULACIÓN DE CONVERSACIÓN (Ejemplo de la conversación de Andrea García)
         const mockLogs = [
             {
                 es_entrada: true, // Cliente -> Bot
-                contenido: "Sí, por favor, agendemos la instalación de la fibra para el martes por la mañana.",
-                chatbot_accion: "Confirmación de Cita",
+                contenido: "Sí, por favor, me envías el Oud Ispahan. ¿Cómo pago?",
+                chatbot_accion: "Confirmación de Compra",
                 created_at: "2025-11-28T10:05:00Z"
             },
             {
                 es_entrada: false, // Bot -> Cliente
-                contenido: "Perfecto, Andrea. Su solicitud de instalación ha sido registrada. ¿Desea confirmar la cita para el martes 3/12 a las 9:00 AM?",
-                chatbot_accion: "Solicitar Confirmación",
+                contenido: "¡Excelente! Confirmamos que Oud Ispahan está en STOCK. ¿Deseas proceder con la compra por 120€?",
+                chatbot_accion: "Confirmación de Stock", // El Bot ha verificado el stock
                 created_at: "2025-11-28T10:04:00Z"
             },
             {
                 es_entrada: true, // Cliente -> Bot
-                contenido: "Quiero el plan de Fibra Óptica Premium.",
-                chatbot_accion: "Selección de Plan",
+                contenido: "Estoy buscando el perfume Oud Ispahan. ¿Lo tienen?",
+                chatbot_accion: "Búsqueda de Producto", // El Cliente indica el producto
                 created_at: "2025-11-28T09:45:00Z"
             },
             {
                 es_entrada: false, // Bot -> Cliente
-                contenido: "Claro, ¿qué tipo de asistencia necesita? Por favor, escriba '1' para Internet o '2' para Móvil.",
-                chatbot_accion: "Menú Principal",
-                created_at: "2025-11-28T09:40:00Z"
-            },
-            {
-                es_entrada: true, // Cliente -> Bot
-                contenido: "hola necesito ayuda con la instalación",
+                contenido: "Hola Andrea! Soy el Chatbot de Perfumes Árabes. ¿En qué puedo ayudarte hoy?",
                 chatbot_accion: "Inicio de Conversación",
-                created_at: "2025-11-28T09:35:00Z"
+                created_at: "2025-11-28T09:40:00Z"
             }
         ];
         
         // ----------------------------------------------------------------------
-        // 2. LÓGICA DE CARGA (Funciona como una versión simplificada de dashboard.js)
+        // 2. LÓGICA DE CARGA (Para renderizar los datos)
         // ----------------------------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -127,13 +128,21 @@
             
             mockPedidos.forEach(p => {
                 const listItem = document.createElement('li');
-                const clientName = p.clientes.nombre || `+${p.clientes.numero_whatsapp}`;
-                // Formateo simple de fecha (sin librerías, solo para la prueba)
+                const clientName = p.clientes.nombre || `(Núm: ${p.clientes.numero_whatsapp})`;
                 const date = new Date(p.fecha_pedido).toLocaleDateString('es-ES');
                 
+                // Determinamos el color del estado
+                let estadoColor = 'color: #e0e0e0;'; // Gris por defecto
+                if (p.estado === 'Pendiente') estadoColor = 'color: #f39c12;'; // Amarillo/Naranja
+                else if (p.estado === 'Completada') estadoColor = 'color: #2ecc71;'; // Verde
+                else if (p.estado === 'Cancelada') estadoColor = 'color: #e74c3c;'; // Rojo
+
+                // NUEVA ESTRUCTURA DE PRESENTACIÓN DEL PEDIDO
                 listItem.innerHTML = `
-                    <span style="font-weight: bold;">[${p.estado}]</span> ${p.producto_servicio} (${p.monto}€)<br>
-                    <small>Cliente: ${clientName} - ${date}</small>
+                    <span style="font-weight: 700; ${estadoColor}">[${p.estado}]</span> 
+                    <span style="color: #c501e2; font-weight: 700;">${p.producto_nombre}</span> 
+                    (${p.monto}€)<br>
+                    <small>Cliente: ${clientName} - ID: ${p.clientes.numero_whatsapp} (${date})</small>
                 `;
                 pedidosList.appendChild(listItem);
             });
@@ -142,13 +151,12 @@
             conversacionList.innerHTML = '';
             mockLogs.forEach(log => {
                 const direction = log.es_entrada ? 'Cliente' : 'Bot';
-                // Usamos los colores de neón definidos en style.css para diferenciar
                 const style = log.es_entrada ? 'font-weight: bold; color: #00fff2;' : 'color: #c501e2;';
 
                 const listItem = document.createElement('li');
                 listItem.innerHTML = `
-                    <span style="${style}">${direction}</span>: ${log.contenido.substring(0, 70)}...<br>
-                    <small>(${log.chatbot_accion || 'Mensaje'})</small>
+                    <span style="${style}">${direction}</span>: ${log.contenido.substring(0, 80)}...<br>
+                    <small>Acción: ${log.chatbot_accion || 'Mensaje'}</small>
                 `;
                 conversacionList.appendChild(listItem);
             });
