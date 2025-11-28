@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Control - WhatsApp API</title>
+    <title>Dashboard - Gestión de Pedidos</title>
     
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
 
-    <div id="dashboard-content">
+    <div id="dashboard-content" style="display: block;">
     
         <div class="header">
             <h1>📊 Panel de Control del Chatbot</h1>
@@ -17,33 +17,90 @@
         </div>
         
         <div id="status-bar">
-            Estado: <span id="message">Verificando sesión...</span>
+            Estado: <span id="message">Vista previa de datos simulados (Gestión de Pedidos activa)</span>
+            
+            <div style="margin-top: 10px;">
+                <label for="logged-user-select" style="display: inline; font-weight: bold; color: #00fff2;">
+                    USUARIO REGISTRADO: 
+                </label>
+                <select id="logged-user-select" style="padding: 5px; background-color: #2c2c2c; color: #e0e0e0; border: 1px solid #c501e2; border-radius: 3px;">
+                    <option value="Usuario A">Usuario A (Gerente)</option>
+                    <option value="Usuario B">Usuario B (Asistente)</option>
+                </select>
+            </div>
         </div>
 
-        <div class="card" style="border-left-color: #3498db;">
+        <div class="card">
             <h3>📈 Métricas Clave</h3>
-            <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #00fff2;">...</span></p>
+            <p class="metric">Pedidos Cargados: <span id="pedidos-count" style="font-weight: bold; color: #00fff2;">0</span></p>
         </div>
 
         <div class="data-grid">
             
-            <div class="card">
-                <h3>🛒 Últimos Pedidos</h3>
-                <ul id="pedidos-list">
-                    <li>Cargando pedidos...</li>
-                </ul>
-            </div>
-            
-            <div class="card" style="border-left-color: #00fff2;">
-                <h3>💬 Conversaciones recientes</h3>
-                <ul id="conversacion-list">
-                    <li>Cargando conversaciones...</li>
-                </ul>
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3>🛒 Pedidos</h3>
+                
+                <div id="filter-container">
+                    
+                    <input type="checkbox" id="filter-pendiente" class="filter-checkbox" value="pendiente" checked> 
+                    <label for="filter-pendiente" class="filter-checkbox-label">Pendientes</label>
+
+                    <input type="checkbox" id="filter-completada" class="filter-checkbox" value="completada" checked> 
+                    <label for="filter-completada" class="filter-checkbox-label">Completadas</label>
+                    
+                    <input type="checkbox" id="filter-cancelada" class="filter-checkbox" value="cancelada" checked> 
+                    <label for="filter-cancelada" class="filter-checkbox-label">Canceladas</label>
+                </div>
+
+                <div id="pedidos-list">
+                    <p>Cargando pedidos simulados...</p>
+                </div>
             </div>
             
         </div>
         
-    </div> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    </div> 
+
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h2 id="modal-title">Detalle del Pedido #</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            
+            <h3 style="color: #f39c12;">🎯 Gestión del Pedido</h3>
+            <p>
+                Asignado a: <strong id="detail-assigned-user" style="color: #00fff2;"></strong><br>
+                Última Acción: <strong id="detail-last-action-date"></strong>
+            </p>
+
+            <div id="action-buttons">
+                <button id="assign-btn" class="action-btn assign-style" onclick="handleAssignClick()">Tomar Asignación</button>
+                <button id="complete-btn" class="action-btn complete-style" onclick="actualizarEstado(currentPedidoId, 'Completada')">Marcar como Completado</button>
+                <button id="cancel-btn" class="action-btn cancel-style" onclick="actualizarEstado(currentPedidoId, 'Cancelada')">Marcar como Cancelado</button>
+            </div>
+            
+            <h3 style="color: #00fff2;">Información del Pedido</h3>
+            <p>
+                Producto: <strong id="detail-product"></strong><br>
+                Precio: <strong id="detail-price"></strong><br>
+                Estado: <strong id="detail-status"></strong><br>
+            </p>
+            
+            <h3 style="color: #00fff2;">Información del Cliente</h3>
+            <p>
+                Nombre: <strong id="detail-client-name"></strong><br>
+                WhatsApp ID: <strong id="detail-client-id"></strong><br>
+            </p>
+
+            <h3 style="color: #c501e2;">Transcripción de la Conversación</h3>
+            <div id="detail-conversation-log">
+                </div>
+
+        </div>
+    </div>
+    
     <script src="dashboard.js"></script>
 </body>
 </html>
