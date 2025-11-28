@@ -63,6 +63,7 @@
 
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-content">
+            
             <div class="modal-header">
                 <h2 id="modal-title">Detalle del Pedido #</h2>
                 <button class="modal-close" onclick="closeModal()">×</button>
@@ -201,7 +202,6 @@
             
             if (pedido && pedido.estado === 'Pendiente') {
                 
-                // Requerimiento: Solo puede finalizar si está asignado al usuario logueado
                 if (pedido.asignado_a !== loggedUser) {
                     alert(`❌ No puedes finalizar el pedido #${id}, está asignado a ${pedido.asignado_a}. Solo el usuario asignado puede completarlo/cancelarlo.`);
                     return;
@@ -296,7 +296,7 @@
         }
 
         // ----------------------------------------------------------------------
-        // 4. FUNCIONALIDAD DEL MODAL (Lógica de visibilidad corregida)
+        // 4. FUNCIONALIDAD DEL MODAL
         // ----------------------------------------------------------------------
         
         function showDetail(pedidoId) {
@@ -344,8 +344,8 @@
                 } else {
                     // 3. PENDIENTE Y ASIGNADO A OTRO USUARIO: Mostrar Completar/Cancelar (inactivos/deshabilitados)
                     assignBtn.classList.add('hidden'); 
-                    completeBtn.classList.remove('hidden'); // Se muestran, pero deshabilitados
-                    cancelBtn.classList.remove('hidden'); // Se muestran, pero deshabilitados
+                    completeBtn.classList.remove('hidden'); 
+                    cancelBtn.classList.remove('hidden'); 
                     completeBtn.disabled = true; 
                     cancelBtn.disabled = true;
                 }
