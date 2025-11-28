@@ -54,7 +54,6 @@ li {
     padding: 30px; 
     border-radius: 10px; 
     border: 2px solid #c501e2; 
-    /* Nota: Se mantiene sombra del login para el efecto de inicio */
     box-shadow: 0 0 30px 10px rgba(197, 1, 226, 0.7); 
     width: 320px; 
     transition: box-shadow 0.3s ease-in-out;
@@ -171,7 +170,7 @@ button:hover {
 }
 
 /* ======================================= */
-/* 4. Estilos de Listado de Pedidos y Borde Sólido (CORREGIDO: Sombra Neón Eliminada) */
+/* 4. Estilos de Listado de Pedidos y Borde Sólido */
 /* ======================================= */
 
 #pedidos-list {
@@ -186,37 +185,31 @@ button:hover {
     background: #252525;
     padding: 15px;
     border-radius: 6px;
-    /* SOLO BORDE SÓLIDO (5px) */
     border-left: 5px solid transparent; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Sombra oscura sutil para profundidad */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); 
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative; 
     overflow: hidden; 
 }
 
-/* ELIMINADO: Todo el bloque .pedido-item::before */
-
 .pedido-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6); /* Sombra más pronunciada al hacer hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6); 
 }
 
 /* Colores de Borde basados en el Estado */
 
-/* PENDIENTE */
 .estado-pendiente {
-    border-left-color: #f39c12; /* Naranja */
+    border-left-color: #f39c12;
 }
 
-/* COMPLETADA */
 .estado-completada {
-    border-left-color: #2ecc71; /* Verde */
+    border-left-color: #2ecc71;
 }
 
-/* CANCELADA */
 .estado-cancelada {
-    border-left-color: #e74c3c; /* Rojo */
+    border-left-color: #e74c3c;
 }
 
 
@@ -286,7 +279,7 @@ button:hover {
 }
 
 /* ======================================= */
-/* 6. Estilos del Modal y Botones */
+/* 6. Estilos del Modal y Botones (CORRECCIÓN BOTÓN X) */
 /* ======================================= */
 .modal-overlay {
     position: fixed;
@@ -318,14 +311,32 @@ button:hover {
     max-height: 90vh;
     overflow-y: auto;
 }
+
+/* === CORRECCIÓN DEL BOTÓN DE CIERRE 'X' === */
 .modal-close {
-    background: none;
-    border: none;
-    color: #c501e2;
-    font-size: 24px;
+    /* Base */
+    background: #2c2c2c; /* Fondo oscuro sutil */
+    border: 2px solid #c501e2; /* Borde neón */
+    color: #c501e2; /* Color neón del símbolo X */
+    font-size: 20px;
     cursor: pointer;
     font-weight: bold;
+    /* Apariencia */
+    width: 35px;
+    height: 35px;
+    line-height: 30px; /* Centra la X verticalmente */
+    border-radius: 50%; /* Hace que sea circular */
+    text-align: center;
+    padding: 0;
+    transition: all 0.2s ease;
 }
+.modal-close:hover {
+    background: #c501e2; /* Invierte colores al pasar el ratón */
+    color: #1e1e1e;
+    box-shadow: 0 0 10px rgba(197, 1, 226, 0.8);
+}
+/* ========================================== */
+
 .log-cliente {
     font-weight: bold;
     color: #00fff2;
